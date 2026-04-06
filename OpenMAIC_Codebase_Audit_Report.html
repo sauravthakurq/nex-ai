@@ -1,0 +1,119 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>OpenMAIC Codebase Audit Report</title>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #102030; line-height: 1.45; margin: 36px; }
+h1, h2, h3 { color: #0b3b53; margin-bottom: 8px; }
+h1 { font-size: 28px; }
+h2 { font-size: 20px; margin-top: 28px; border-bottom: 1px solid #d7e2ea; padding-bottom: 6px; }
+h3 { font-size: 15px; margin-top: 18px; }
+p, li { font-size: 11.5pt; }
+ul { margin-top: 6px; }
+table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 10.5pt; }
+th, td { border: 1px solid #c9d5de; padding: 7px 8px; vertical-align: top; }
+th { background: #eaf3f8; text-align: left; }
+code { font-family: Menlo, Consolas, monospace; font-size: 9.5pt; }
+.muted { color: #5d7280; }
+.callout { background: #f4f8fb; border-left: 4px solid #5f8fa8; padding: 10px 12px; margin: 12px 0; }
+.small { font-size: 10pt; color: #546773; }
+</style>
+</head>
+<body>
+<h1>OpenMAIC / NEX AI Codebase Audit Report</h1>
+<p><strong>Project Path:</strong> <code>/Users/sauravthakur/Desktop/OpenMAIC-main</code><br/>
+<strong>Generated On:</strong> 2026-04-05 (Asia/Kolkata)<br/>
+<strong>Project Identity:</strong> <code>nex-ai</code> v0.1.0, license AGPL-3.0</p>
+
+<div class="callout">
+<p><strong>Short Summary:</strong> Yeh project ek <strong>Next.js + React + TypeScript</strong> based AI classroom platform hai jo lesson generation, slide rendering, quiz, PBL, TTS, whiteboard, media generation aur multi-provider AI integrations support karta hai. Repository me app code ke saath workspace packages, generated bundles, lockfiles, media assets, aur helper patch files bhi maujood hain.</p>
+</div>
+
+<h2>1. Executive Summary</h2>
+<ul>
+<li>Main frontend stack: <strong>Next.js 16.1.2</strong>, <strong>React 19.2.3</strong>, <strong>TypeScript 5.9.3</strong>, App Router structure.</li>
+<li>Main code concentration <code>lib/</code> aur <code>components/</code> me hai; ye dono milkar core source ka 77.1% represent karte hain.</li>
+<li>Project AI-heavy hai: OpenAI, Anthropic, Google, LangGraph, CopilotKit, MCP SDK, multi-modal image/video/TTS/ASR providers supported hain.</li>
+<li>Testing stack available hai: <strong>Vitest</strong> for unit tests aur <strong>Playwright</strong> for end-to-end flows.</li>
+<li>Deployment paths: local dev, Docker, aur Vercel.</li>
+</ul>
+
+<h2>2. Size Metrics</h2>
+<table><thead><tr><th>Metric</th><th>Value</th><th>Meaning</th></tr></thead><tbody><tr><td>Full workspace line count</td><td>292,803</td><td>Sab files mila kar, including <code>node_modules</code> aur <code>.next</code>.</td></tr><tr><td>Repository content</td><td>537,636 lines / 690 files</td><td>Repo ke actual content ka count, excluding <code>node_modules</code>, <code>.next</code>, <code>.git</code>.</td></tr><tr><td>Text/code/config/docs set</td><td>177,737 lines / 594 files</td><td>Source-like text files excluding <code>assets</code> aur <code>public</code>.</td></tr><tr><td>Core authored source</td><td>121,082 lines / 524 files</td><td>Main app folders: <code>app</code>, <code>components</code>, <code>lib</code>, <code>configs</code>, <code>tests</code>, <code>e2e</code>, <code>skills</code>, <code>packages</code> excluding dist bundles.</td></tr><tr><td>Assets</td><td>325,304 lines / 14 files</td><td>Binary/media files counted by line breaks; size-heavy but not code-heavy.</td></tr><tr><td>Public files</td><td>31,316 lines / 53 files</td><td>Public static assets.</td></tr><tr><td>Markdown docs</td><td>4,575 lines / 38 files</td><td>README, guides, docs, skills references.</td></tr></tbody></table>
+<p class="small">Important note: <code>pnpm-lock.yaml</code>, <code>packages/*/dist</code>, <code>lib/audio/azure.json</code>, aur GIF/PNG assets raw totals ko inflate karte hain. Isliye code samajhne ke liye <strong>Core authored source</strong> metric sabse useful hai.</p>
+
+<h2>3. Language Breakdown</h2>
+<h3>3.1 Repository Text/Code Language Mix</h3>
+<table><thead><tr><th>Language</th><th>Files</th><th>Lines</th><th>Share of text/code set</th></tr></thead><tbody><tr><td>TypeScript</td><td>264</td><td>57,012</td><td>32.1%</td></tr><tr><td>TSX/React</td><td>190</td><td>37,950</td><td>21.4%</td></tr><tr><td>JavaScript</td><td>46</td><td>27,619</td><td>15.5%</td></tr><tr><td>YAML</td><td>7</td><td>21,716</td><td>12.2%</td></tr><tr><td>JSON</td><td>10</td><td>18,058</td><td>10.2%</td></tr><tr><td>TypeScript Declarations</td><td>15</td><td>5,988</td><td>3.4%</td></tr><tr><td>Markdown</td><td>38</td><td>4,575</td><td>2.6%</td></tr><tr><td>CommonJS</td><td>1</td><td>2,510</td><td>1.4%</td></tr><tr><td>Text</td><td>9</td><td>1,661</td><td>0.9%</td></tr><tr><td>CSS</td><td>1</td><td>213</td><td>0.1%</td></tr><tr><td>Python</td><td>7</td><td>192</td><td>0.1%</td></tr><tr><td>JavaScript Module</td><td>5</td><td>124</td><td>0.1%</td></tr><tr><td>HTML</td><td>1</td><td>119</td><td>0.1%</td></tr></tbody></table>
+<h3>3.2 Core Authored Source Language Mix</h3>
+<table><thead><tr><th>Language</th><th>Files</th><th>Lines</th><th>Share of core source</th></tr></thead><tbody><tr><td>TypeScript</td><td>261</td><td>56,956</td><td>47.0%</td></tr><tr><td>TSX/React</td><td>190</td><td>37,950</td><td>31.3%</td></tr><tr><td>JSON</td><td>6</td><td>17,840</td><td>14.7%</td></tr><tr><td>Markdown</td><td>31</td><td>3,269</td><td>2.7%</td></tr><tr><td>TypeScript Declarations</td><td>3</td><td>2,779</td><td>2.3%</td></tr><tr><td>JavaScript</td><td>31</td><td>2,044</td><td>1.7%</td></tr><tr><td>CSS</td><td>1</td><td>213</td><td>0.2%</td></tr><tr><td>JavaScript Module</td><td>1</td><td>31</td><td>0.0%</td></tr></tbody></table>
+<p class="small">Interpretation: Project strongly TypeScript-first hai. TS + TSX milkar core source ka 78.4% cover karte hain. JavaScript mostly tooling/workspace-level files me hai, jabki JSON ka large share provider data files se aata hai.</p>
+
+<h2>4. Directory and Module Distribution</h2>
+<h3>4.1 Largest Top-Level Directories in Repository</h3>
+<table><thead><tr><th>Top-level entry</th><th>Files</th><th>Lines</th></tr></thead><tbody><tr><td><code>assets</code></td><td>14</td><td>325,304</td></tr><tr><td><code>lib</code></td><td>204</td><td>54,128</td></tr><tr><td><code>packages</code></td><td>68</td><td>46,021</td></tr><tr><td><code>components</code></td><td>207</td><td>40,833</td></tr><tr><td><code>public</code></td><td>53</td><td>31,316</td></tr><tr><td><code>pnpm-lock.yaml</code></td><td>1</td><td>21,479</td></tr><tr><td><code>app</code></td><td>38</td><td>6,312</td></tr><tr><td><code>configs</code></td><td>13</td><td>3,901</td></tr><tr><td><code>tests</code></td><td>5</td><td>1,207</td></tr><tr><td><code>roundtable.txt</code></td><td>1</td><td>1,002</td></tr><tr><td><code>LICENSE</code></td><td>1</td><td>662</td></tr><tr><td><code>skills</code></td><td>8</td><td>610</td></tr><tr><td><code>e2e</code></td><td>12</td><td>539</td></tr><tr><td><code>README.md</code></td><td>1</td><td>506</td></tr><tr><td><code>README-zh.md</code></td><td>1</td><td>505</td></tr></tbody></table>
+<h3>4.2 Core Source Distribution</h3>
+<table><thead><tr><th>Directory</th><th>Files</th><th>Lines</th><th>Share of core source</th></tr></thead><tbody><tr><td><code>lib</code></td><td>204</td><td>54,128</td><td>44.7%</td></tr><tr><td><code>components</code></td><td>204</td><td>39,276</td><td>32.4%</td></tr><tr><td><code>packages</code></td><td>47</td><td>15,253</td><td>12.6%</td></tr><tr><td><code>app</code></td><td>33</td><td>6,172</td><td>5.1%</td></tr><tr><td><code>configs</code></td><td>13</td><td>3,901</td><td>3.2%</td></tr><tr><td><code>tests</code></td><td>5</td><td>1,207</td><td>1.0%</td></tr><tr><td><code>skills</code></td><td>6</td><td>606</td><td>0.5%</td></tr><tr><td><code>e2e</code></td><td>12</td><td>539</td><td>0.4%</td></tr></tbody></table>
+<ul>
+<li><code>lib/</code> me business logic, orchestration, AI providers, export, media, audio, store, PDF, types aur utility systems concentrated hain.</li>
+<li><code>components/</code> me UI surface sabse broad hai: chat, generation, settings, whiteboard, roundtable, slide renderer, agent UI, canvas, stage.</li>
+<li><code>app/</code> App Router entry points aur API routes manage karta hai.</li>
+<li><code>packages/</code> local workspace packages hold karta hai, especially PowerPoint export aur MathML conversion related logic.</li>
+</ul>
+
+<h2>5. Core Technologies Used</h2>
+<h3>Core Web Stack</h3><p><code>next</code> <span class='muted'>16.1.2</span>, <code>react</code> <span class='muted'>19.2.3</span>, <code>react-dom</code> <span class='muted'>19.2.3</span>, <code>typescript</code> <span class='muted'>^5.9.3</span></p><h3>Styling and UI</h3><p><code>tailwindcss</code> <span class='muted'>^4.2.2</span>, <code>@tailwindcss/postcss</code> <span class='muted'>^4.2.2</span>, <code>radix-ui</code> <span class='muted'>^1.4.3</span>, <code>@radix-ui/react-checkbox</code> <span class='muted'>^1.3.3</span>, <code>@radix-ui/react-popover</code> <span class='muted'>^1.1.15</span>, <code>@radix-ui/react-slider</code> <span class='muted'>^1.3.6</span>, <code>@radix-ui/react-switch</code> <span class='muted'>^1.2.6</span>, <code>@base-ui/react</code> <span class='muted'>^1.3.0</span>, <code>shadcn</code> <span class='muted'>^3.8.5</span>, <code>geist</code> <span class='muted'>^1.7.0</span>, <code>@fontsource-variable/inter</code> <span class='muted'>^5.2.8</span>, <code>lucide-react</code> <span class='muted'>^0.562.0</span>, <code>motion</code> <span class='muted'>^12.38.0</span>, <code>animate.css</code> <span class='muted'>^4.1.1</span>, <code>sonner</code> <span class='muted'>^2.0.7</span>, <code>embla-carousel-react</code> <span class='muted'>^8.6.0</span></p><h3>AI and Orchestration</h3><p><code>ai</code> <span class='muted'>^6.0.146</span>, <code>@ai-sdk/openai</code> <span class='muted'>^3.0.50</span>, <code>@ai-sdk/anthropic</code> <span class='muted'>^3.0.66</span>, <code>@ai-sdk/google</code> <span class='muted'>^3.0.58</span>, <code>@ai-sdk/react</code> <span class='muted'>^3.0.148</span>, <code>openai</code> <span class='muted'>^4.104.0</span>, <code>@langchain/core</code> <span class='muted'>^1.1.39</span>, <code>@langchain/langgraph</code> <span class='muted'>^1.2.7</span>, <code>@copilotkit/backend</code> <span class='muted'>^0.37.0</span>, <code>@copilotkit/runtime</code> <span class='muted'>^1.54.1</span>, <code>copilotkit</code> <span class='muted'>^0.0.58</span>, <code>@modelcontextprotocol/sdk</code> <span class='muted'>^1.29.0</span>, <code>zod</code> <span class='muted'>^4.3.6</span>, <code>tokenlens</code> <span class='muted'>^1.3.1</span></p><h3>State, Data, and Interaction</h3><p><code>zustand</code> <span class='muted'>^5.0.12</span>, <code>immer</code> <span class='muted'>^11.1.4</span>, <code>dexie</code> <span class='muted'>^4.4.2</span>, <code>mitt</code> <span class='muted'>^3.0.1</span>, <code>@xyflow/react</code> <span class='muted'>^12.10.2</span>, <code>use-stick-to-bottom</code> <span class='muted'>^1.1.3</span>, <code>cmdk</code> <span class='muted'>^1.1.1</span></p><h3>Editors, Math, and Visualization</h3><p><code>prosemirror-commands</code> <span class='muted'>^1.7.1</span>, <code>prosemirror-dropcursor</code> <span class='muted'>^1.8.2</span>, <code>prosemirror-gapcursor</code> <span class='muted'>^1.4.1</span>, <code>prosemirror-history</code> <span class='muted'>^1.5.0</span>, <code>prosemirror-inputrules</code> <span class='muted'>^1.5.1</span>, <code>prosemirror-keymap</code> <span class='muted'>^1.2.3</span>, <code>prosemirror-model</code> <span class='muted'>^1.25.4</span>, <code>prosemirror-schema-basic</code> <span class='muted'>^1.2.4</span>, <code>prosemirror-schema-list</code> <span class='muted'>^1.5.1</span>, <code>prosemirror-state</code> <span class='muted'>^1.4.4</span>, <code>prosemirror-view</code> <span class='muted'>^1.41.8</span>, <code>katex</code> <span class='muted'>^0.16.44</span>, <code>temml</code> <span class='muted'>^0.13.2</span>, <code>echarts</code> <span class='muted'>^6.0.0</span></p><h3>Media, Export, and Parsing</h3><p><code>@napi-rs/canvas</code> <span class='muted'>^0.1.97</span>, <code>sharp</code> <span class='muted'>^0.34.5</span>, <code>jszip</code> <span class='muted'>^3.10.1</span>, <code>file-saver</code> <span class='muted'>^2.0.5</span>, <code>pptxtojson</code> <span class='muted'>^1.12.1</span>, <code>svg-arc-to-cubic-bezier</code> <span class='muted'>^3.2.0</span>, <code>svg-pathdata</code> <span class='muted'>^8.0.0</span>, <code>unpdf</code> <span class='muted'>^1.4.0</span>, <code>jsonrepair</code> <span class='muted'>^3.13.3</span>, <code>partial-json</code> <span class='muted'>^0.1.7</span>, <code>js-yaml</code> <span class='muted'>^4.1.1</span></p><h3>Internationalization</h3><p><code>i18next</code> <span class='muted'>^26.0.3</span>, <code>react-i18next</code> <span class='muted'>^17.0.2</span>, <code>i18next-resources-to-backend</code> <span class='muted'>^1.2.1</span></p><h3>Testing and Quality</h3><p><code>vitest</code> <span class='muted'>^4.1.2</span>, <code>@playwright/test</code> <span class='muted'>^1.59.1</span>, <code>eslint</code> <span class='muted'>^9.39.4</span>, <code>eslint-config-next</code> <span class='muted'>16.1.2</span>, <code>prettier</code> <span class='muted'>3.8.1</span></p><h3>Build and Bundling</h3><p><code>rollup</code> <span class='muted'>^4.60.1</span>, <code>@rollup/plugin-commonjs</code> <span class='muted'>^28.0.9</span>, <code>@rollup/plugin-node-resolve</code> <span class='muted'>^16.0.3</span>, <code>rollup-plugin-typescript2</code> <span class='muted'>^0.36.0</span>, <code>tslib</code> <span class='muted'>^2.8.1</span></p><h3>Integrations</h3><p><code>firebase</code> <span class='muted'>^12.11.0</span>, <code>undici</code> <span class='muted'>^7.24.7</span></p>
+<h3>Workspace Packages</h3>
+<ul>
+<li><code>packages/mathml2omml</code>: local workspace package for MathML to OMML conversion; build via Rollup.</li>
+<li><code>packages/pptxgenjs</code>: local/customized workspace package for PowerPoint generation and export support.</li>
+</ul>
+<h3>Project Scripts</h3>
+<table><thead><tr><th>Script</th><th>Command</th></tr></thead><tbody><tr><td><code>postinstall</code></td><td><code>cd packages/mathml2omml &amp;&amp; npm run build &amp;&amp; cd ../pptxgenjs &amp;&amp; npm run build</code></td></tr><tr><td><code>dev</code></td><td><code>next dev</code></td></tr><tr><td><code>build</code></td><td><code>next build</code></td></tr><tr><td><code>start</code></td><td><code>next start</code></td></tr><tr><td><code>lint</code></td><td><code>eslint</code></td></tr><tr><td><code>check</code></td><td><code>prettier . --check</code></td></tr><tr><td><code>format</code></td><td><code>prettier . --write</code></td></tr><tr><td><code>test</code></td><td><code>vitest run</code></td></tr><tr><td><code>test:e2e</code></td><td><code>playwright test</code></td></tr><tr><td><code>test:e2e:ui</code></td><td><code>playwright test --ui</code></td></tr></tbody></table>
+
+<h2>6. Application Architecture Snapshot</h2>
+<ul>
+<li><strong>Rendering model:</strong> Next.js App Router with server route handlers under <code>app/api</code>.</li>
+<li><strong>State management:</strong> Zustand + Immer + Dexie based local/stateful interactions.</li>
+<li><strong>Editor/canvas stack:</strong> ProseMirror, custom canvas editor modules, whiteboard, slide renderer, element operations, thumbnail rendering.</li>
+<li><strong>AI orchestration:</strong> provider abstraction, generation pipeline, scene builder, outline generator, chat session state, agent profiles, TTS/video/image generation routes.</li>
+<li><strong>Export pipeline:</strong> PPTX export helpers, HTML parser utilities, SVG/LaTeX conversion helpers, workspace package integration.</li>
+<li><strong>Internationalization:</strong> <code>en-US.json, zh-CN.json</code> locale files present.</li>
+</ul>
+
+<h2>7. API Surface</h2>
+<p>Total API routes found: <strong>25</strong></p>
+<table><thead><tr><th>Route</th></tr></thead><tbody><tr><td><code>app/api/azure-voices/route.ts</code></td></tr><tr><td><code>app/api/chat/route.ts</code></td></tr><tr><td><code>app/api/classroom-media/[classroomId]/[...path]/route.ts</code></td></tr><tr><td><code>app/api/classroom/route.ts</code></td></tr><tr><td><code>app/api/generate-classroom/[jobId]/route.ts</code></td></tr><tr><td><code>app/api/generate-classroom/route.ts</code></td></tr><tr><td><code>app/api/generate/agent-profiles/route.ts</code></td></tr><tr><td><code>app/api/generate/image/route.ts</code></td></tr><tr><td><code>app/api/generate/scene-actions/route.ts</code></td></tr><tr><td><code>app/api/generate/scene-content/route.ts</code></td></tr><tr><td><code>app/api/generate/scene-outlines-stream/route.ts</code></td></tr><tr><td><code>app/api/generate/tts/route.ts</code></td></tr><tr><td><code>app/api/generate/video/route.ts</code></td></tr><tr><td><code>app/api/health/route.ts</code></td></tr><tr><td><code>app/api/parse-pdf/route.ts</code></td></tr><tr><td><code>app/api/pbl/chat/route.ts</code></td></tr><tr><td><code>app/api/proxy-media/route.ts</code></td></tr><tr><td><code>app/api/quiz-grade/route.ts</code></td></tr><tr><td><code>app/api/server-providers/route.ts</code></td></tr><tr><td><code>app/api/transcription/route.ts</code></td></tr><tr><td><code>app/api/verify-image-provider/route.ts</code></td></tr><tr><td><code>app/api/verify-model/route.ts</code></td></tr><tr><td><code>app/api/verify-pdf-provider/route.ts</code></td></tr><tr><td><code>app/api/verify-video-provider/route.ts</code></td></tr><tr><td><code>app/api/web-search/route.ts</code></td></tr></tbody></table>
+
+<h2>8. AI Provider and Integration Coverage</h2>
+<table><thead><tr><th>Capability Area</th><th>Provider Count</th><th>Providers</th></tr></thead><tbody><tr><td>LLM</td><td>11</td><td>OpenAI, Anthropic, Google Gemini, DeepSeek, Qwen, Kimi, MiniMax, GLM, SiliconFlow, Doubao, Grok</td></tr><tr><td>TTS</td><td>6</td><td>OpenAI, Azure, GLM, Qwen, MiniMax, ElevenLabs</td></tr><tr><td>ASR</td><td>2</td><td>OpenAI, Qwen</td></tr><tr><td>PDF</td><td>2</td><td>unpdf, MinerU</td></tr><tr><td>Image</td><td>5</td><td>Seedream, Qwen Image, Nano Banana, MiniMax, Grok</td></tr><tr><td>Video</td><td>6</td><td>Seedance, Kling, Veo, Sora, MiniMax, Grok</td></tr><tr><td>Web Search</td><td>2</td><td>Tavily, Grok search tools (via chat completions)</td></tr></tbody></table>
+<p class="small">Environment setup ke basis par project multi-provider architecture use karta hai. Isse app ek single AI vendor par locked nahi rehta.</p>
+
+<h2>9. Testing, QA, and Deployment</h2>
+<ul>
+<li><strong>Unit/integration tests:</strong> 5 files in <code>tests/</code>.</li>
+<li><strong>E2E tests:</strong> 3 Playwright specs in <code>e2e/tests/</code>.</li>
+<li><strong>Lint/format:</strong> ESLint + Prettier configured.</li>
+<li><strong>Deployment:</strong> Vercel config present, Docker support present, standalone Next.js output configured for non-Vercel builds.</li>
+<li><strong>Prerequisites:</strong> Node.js &gt;= 20.9.0 and pnpm 10.28.0.</li>
+</ul>
+<p><strong>Test Files:</strong><br/><code>tests/ai/minimax-provider.test.ts</code><br/><code>tests/audio/minimax-tts-models.test.ts</code><br/><code>tests/server/provider-config.test.ts</code><br/><code>tests/store/settings-server-sync.test.ts</code><br/><code>tests/store/settings-validation.test.ts</code><br/><code>e2e/tests/classroom-interaction.spec.ts</code><br/><code>e2e/tests/generation-flow.spec.ts</code><br/><code>e2e/tests/home-to-generation.spec.ts</code></p>
+
+<h2>10. Largest Core Source Files</h2>
+<table><thead><tr><th>Path</th><th>Language</th><th>Lines</th></tr></thead><tbody><tr><td><code>lib/audio/azure.json</code></td><td>JSON</td><td>15,914</td></tr><tr><td><code>packages/pptxgenjs/types/index.d.ts</code></td><td>TypeScript Declarations</td><td>2,713</td></tr><tr><td><code>components/roundtable/index.tsx</code></td><td>TSX/React</td><td>2,222</td></tr><tr><td><code>packages/pptxgenjs/src/gen-charts.ts</code></td><td>TypeScript</td><td>2,043</td></tr><tr><td><code>packages/pptxgenjs/src/gen-xml.ts</code></td><td>TypeScript</td><td>1,953</td></tr><tr><td><code>packages/pptxgenjs/src/core-interfaces.ts</code></td><td>TypeScript</td><td>1,902</td></tr><tr><td><code>configs/symbol.ts</code></td><td>TypeScript</td><td>1,671</td></tr><tr><td><code>components/chat/use-chat-sessions.ts</code></td><td>TypeScript</td><td>1,497</td></tr><tr><td><code>lib/store/settings.ts</code></td><td>TypeScript</td><td>1,354</td></tr><tr><td><code>components/stage.tsx</code></td><td>TSX/React</td><td>1,309</td></tr><tr><td><code>lib/generation/scene-generator.ts</code></td><td>TypeScript</td><td>1,295</td></tr><tr><td><code>packages/pptxgenjs/src/gen-objects.ts</code></td><td>TypeScript</td><td>1,270</td></tr><tr><td><code>components/ai-elements/prompt-input.tsx</code></td><td>TSX/React</td><td>1,268</td></tr><tr><td><code>lib/export/use-export-pptx.ts</code></td><td>TypeScript</td><td>1,182</td></tr><tr><td><code>lib/audio/constants.ts</code></td><td>TypeScript</td><td>1,169</td></tr></tbody></table>
+<p class="small">Note: <code>lib/audio/azure.json</code> data-heavy file hai; baaki entries real source complexity ko reflect karti hain, especially roundtable UI, PowerPoint export, prompt input, stage, settings, aur generation logic.</p>
+
+<h2>11. Repo Hygiene Notes</h2>
+<ul>
+<li>Repository root me multiple helper, patch, temp, aur backup files mile. Yeh permanent product code ka hissa zaroori nahi lagte.</li>
+<li>Found helper/temporary/backup style files: <strong>29</strong></li>
+<li>Is category ke examples: <code>fix_*.py</code>, <code>patch*.js</code>, <code>*.bak</code>, <code>temp*.txt</code>, <code>current_*.txt</code>.</li>
+</ul>
+<table><thead><tr><th>Helper / temp / backup file</th></tr></thead><tbody><tr><td><code>components/stage.tsx.bak</code></td></tr><tr><td><code>current_bg.tmp.txt</code></td></tr><tr><td><code>current_dock.txt</code></td></tr><tr><td><code>current_pill.txt</code></td></tr><tr><td><code>fix_app_page.js</code></td></tr><tr><td><code>fix_auth_hook.py</code></td></tr><tr><td><code>fix_bg.py</code></td></tr><tr><td><code>fix_components.py</code></td></tr><tr><td><code>fix_icons.mjs</code></td></tr><tr><td><code>fix_index.py</code></td></tr><tr><td><code>fix_providers.py</code></td></tr><tr><td><code>fix_roundtable_mobile.js</code></td></tr><tr><td><code>fix_settings_pill.js</code></td></tr><tr><td><code>fix_styles.js</code></td></tr><tr><td><code>fix_thumbnail.mjs</code></td></tr><tr><td><code>patch.js</code></td></tr><tr><td><code>patch2.js</code></td></tr><tr><td><code>patch_apple.js</code></td></tr><tr><td><code>patch_audio_settings.py</code></td></tr><tr><td><code>patch_chat_area.py</code></td></tr></tbody></table>
+<p class="small">Agar chahein to next step me in files ka cleanup inventory bhi alag se banaya ja sakta hai.</p>
+
+<h2>12. Final Conclusion</h2>
+<p>Overall, yeh codebase ek <strong>large TypeScript-first AI web application</strong> hai jisme strong frontend surface, provider abstraction, multimedia generation, presentation export, aur interactive classroom features bundled hain. Practical reading ke liye sabse important folders <code>app/</code>, <code>components/</code>, <code>lib/</code>, aur <code>packages/</code> hain. Raw line count bada hai, lekin meaningful authored application source approximately <strong>121,082</strong> lines ke aas-paas hai.</p>
+</body>
+</html>

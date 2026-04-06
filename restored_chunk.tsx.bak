@@ -1,0 +1,150 @@
+  const canGenerate = !!form.requirement.trim();
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+      e.preventDefault();
+      if (canGenerate) handleGenerate();
+    }
+  };
+
+  return (
+    <div className="min-h-[100dvh] w-full bg-transparent flex flex-col items-center p-4 pt-16 md:p-8 md:pt-16 overflow-x-hidden relative selection:bg-black/10 dark:selection:bg-white/20">
+      <HomeBackground />
+      {/* ═══ Top-right pill ═══ */}
+      <div
+        ref={toolbarRef}
+        className="fixed top-4 right-4 z-50 flex items-center gap-3 bg-black/20 dark:bg-white/10 backdrop-blur-md px-4 py-2 rounded-full shadow-sm"
+      >
+        {/* Login Button */}
+        <button
+          onClick={() => setLoginOpen(true)}
+          className="border border-white rounded-full bg-transparent text-white px-4 py-1 text-sm font-medium hover:bg-white/10 transition-colors max-w-[150px] truncate"
+        >
+          {user ? user.email?.split('@')[0] : 'Login'}
+        </button>
+
+        {/* Settings Button */}
+        <button
+          onClick={() => setSettingsOpen(true)}
+          className="p-1 rounded-full text-white hover:bg-white/10 transition-all group active:scale-[0.95]"
+        >
+          <Settings className="w-5 h-5 group-hover:rotate-45 transition-transform duration-500 ease-out" />
+        </button>
+      </div>
+      <SettingsDialog
+        open={settingsOpen}
+        onOpenChange={(open) => {
+          setSettingsOpen(open);
+          if (!open) setSettingsSection(undefined);
+        }}
+        initialSection={settingsSection}
+      />
+      <LoginModal isOpen={loginOpen} onClose={() => setLoginOpen(false)} />
+
+      {/* ═══ Background Decor ═══ */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div
+          className="absolute top-0 left-1/4 w-96 h-96 bg-black/8 dark:bg-white/6 rounded-full blur-3xl animate-pulse"
+          style={{ animationDuration: '4s' }}
+        />
+        <div
+          className="absolute bottom-0 right-1/4 w-96 h-96 bg-black/6 dark:bg-white/4 rounded-full blur-3xl animate-pulse"
+          style={{ animationDuration: '6s' }}
+        />
+      </div>
+
+      {/* ═══ Hero section: title + input (centered, wider) ═══ */}
+      <motion.div
+        initial={{ opacity: 1, y: 0 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0 }}
+        className={cn(
+          'relative z-20 w-full max-w-[800px] flex flex-col items-center',
+          classrooms.length === 0 ? 'justify-center min-h-[calc(100dvh-8rem)]' : 'mt-[10vh]',
+        )}
+      >
+        {/* ── Logo ── */}
+        <motion.div
+          initial={{ opacity: 1, scale: 1 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0 }}
+          className="mb-4"
+        >
+          <BrandMark />
+        </motion.div>
+
+        {/* ── Slogan ── */}
+        <motion.p
+          initial={{ opacity: 1 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0 }}
+          className="text-sm text-white/80 mb-8 text-center max-w-xl"
+        >
+          {t('home.slogan')}
+        </motion.p>
+
+        {/* ── Unified input area ── */}
+        <motion.div
+          initial={{ opacity: 1, scale: 1 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0 }}
+          className="w-full"
+        >
+          <div className="w-full rounded-[24px] border border-black/5 dark:border-white/10 bg-white shadow-[0_8px_30px_-12px_rgba(0,0,0,0.08)] transition-all duration-300 focus-within:shadow-[0_8px_40px_-12px_rgba(0,0,0,0.12)] focus-within:border-black/10 dark:focus-within:border-white/20">
+            {/* ── Greeting + Profile + Agents ── */}
+            <div className="relative z-20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
+              <GreetingBar />
+              <div className="px-3 sm:pr-3 sm:pl-0 pt-0 sm:pt-3.5 shrink-0 w-full sm:w-auto">
+                <AgentBar />
+              </div>
+            </div>
+
+            {/* Textarea */}
+            <textarea
+              ref={textareaRef}
+              placeholder={t('upload.requirementPlaceholder')}
+              className="w-full resize-none border-0 bg-transparent px-6 pt-2 pb-4 text-[15px] leading-relaxed placeholder:text-foreground/40 focus:outline-none min-h-[140px] max-h-[300px]"
+              value={form.requirement}
+              onChange={(e) => updateForm('requirement', e.target.value)}
+              onKeyDown={handleKeyDown}
+              rows={4}
+            />
+
+            {/* Toolbar row */}
+            <div className="px-4 pb-4 flex flex-col sm:flex-row max-sm:items-start items-end max-sm:gap-4 gap-3">
+              <div className="flex-1 min-w-0">
+                <GenerationToolbar
+                  language={form.language}
+                  onLanguageChange={(lang) => updateForm('language', lang)}
+                  webSearch={form.webSearch}
+                  onWebSearchChange={(v) => updateForm('webSearch', v)}
+                  onSettingsOpen={(section) => {
+                    setSettingsSection(section);
+                    setSettingsOpen(true);
+                  }}
+                  pdfFile={form.pdfFile}
+                  onPdfFileChange={(f) => updateForm('pdfFile', f)}
+                  onPdfError={setError}
+                />
+              </div>
+
+              {/* Voice input */}
+              <SpeechButton
+                size="md"
+                onTranscription={(text) => {
+                  setForm((prev) => {
+                    const next = prev.requirement + (prev.requirement ? ' ' : '') + text;
+                    updateRequirementCache(next);
+                    return { ...prev, requirement: next };
+                  });
+                }}
+              />
+
+              {/* Send button */}
+              <button
+                onClick={handleGenerate}
+                disabled={!canGenerate}
+                className={cn(
+                  'shrink-0 h-10 rounded-full w-full sm:w-auto flex items-center justify-center gap-2 transition-all px-5 active:scale-[0.96]',
+                  canGenerate
+                    ? 'bg-primary text-primary-foreground hover:opacity-90 shadow-sm cursor-pointer'
