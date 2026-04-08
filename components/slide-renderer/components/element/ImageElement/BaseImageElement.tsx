@@ -9,8 +9,8 @@ import { ImageOutline } from './ImageOutline';
 import { useMediaGenerationStore, isMediaPlaceholder } from '@/lib/store/media-generation';
 import { useSettingsStore } from '@/lib/store/settings';
 import { useMediaStageId } from '@/lib/contexts/media-stage-context';
-import { retryMediaTask } from '@/lib/media/media-orchestrator';
-import { RotateCcw, Paintbrush, ShieldAlert, ImageOff } from 'lucide-react';
+import { retryMediaTask, enhancePollinationsImage } from '@/lib/media/media-orchestrator';
+import { RotateCcw, Paintbrush, ShieldAlert, ImageOff, Wand2 } from 'lucide-react';
 import { useI18n } from '@/lib/hooks/use-i18n';
 
 export interface BaseImageElementProps {
@@ -70,7 +70,7 @@ export function BaseImageElement({ elementInfo }: BaseImageElementProps) {
           <ImageOutline elementInfo={elementInfo} />
 
           <div
-            className="w-full h-full overflow-hidden relative"
+            className="w-full h-full overflow-hidden relative group"
             style={{ clipPath: clipShape.style }}
           >
             {showDisabled ? (
@@ -145,6 +145,21 @@ export function BaseImageElement({ elementInfo }: BaseImageElementProps) {
                     className="absolute inset-0"
                     style={{ backgroundColor: elementInfo.colorMask }}
                   />
+                )}
+                {task?.providerId === 'pollinations' && task?.modelId === 'zimage' && (
+                  <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        enhancePollinationsImage(elementInfo.src);
+                      }}
+                      onPointerDown={(e) => e.stopPropagation()}
+                      className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-white bg-black/60 hover:bg-black/80 backdrop-blur-md rounded-md shadow-lg transition-colors border border-white/10"
+                    >
+                      <Wand2 className="w-3.5 h-3.5 text-amber-300" />
+                      Enhance / HD
+                    </button>
+                  </div>
                 )}
               </>
             ) : null}

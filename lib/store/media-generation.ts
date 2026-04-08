@@ -33,6 +33,8 @@ export interface MediaTask {
   errorCode?: string; // Structured error code (e.g. 'CONTENT_SENSITIVE')
   retryCount: number;
   stageId: string;
+  providerId?: string;
+  modelId?: string;
 }
 
 interface MediaGenerationState {

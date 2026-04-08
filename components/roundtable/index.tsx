@@ -2099,24 +2099,51 @@ export function Roundtable({
               {/* Left Section: Other Participants Placeholders */}
               <div className="flex items-center pl-1 shrink-0 overflow-hidden max-w-[120px]">
                 <div className="flex items-center -space-x-3 group/avatars">
-                  {studentParticipants.slice(0, 3).map((p, index) => {
-                    const zClasses = ['z-30', 'z-20', 'z-10'];
+                  {[teacherParticipant, ...studentParticipants].filter(Boolean).map((p, index) => {
+                    if (!p) {
+                      return null;
+                    }
+                    const zClasses = ['z-50', 'z-40', 'z-30', 'z-20', 'z-10'];
                     const isSpk = speakingAgentId === p.id;
                     return (
-                      <div 
-                        key={p.id} 
-                        className={cn(
-                          "relative w-9 h-9 rounded-full ring-2 ring-white/80 dark:ring-black/60 shadow-sm transition-all duration-300 ease-out active:scale-90 cursor-pointer hover:-translate-y-1 hover:z-40 bg-gray-200/50 dark:bg-gray-700/50",
-                          zClasses[index] || 'z-0',
-                          isSpk ? 'scale-110 opacity-100 grayscale-0 ring-amber-400 border-2 border-amber-400' : 'opacity-50 grayscale-[0.2]'
-                        )}
-                        title={p.name}
-                      >
-                        <div className="w-full h-full rounded-full overflow-hidden bg-gradient-to-br from-white/20 to-transparent">
-                            <img src={p.avatar} alt={p.name} className="w-full h-full object-cover" />
-                        </div>
-                      </div>
-                    )
+                      <HoverCard key={p.id} openDelay={200} closeDelay={100}>
+                        <HoverCardTrigger asChild>
+                          <div
+                            className={cn(
+                              "relative w-9 h-9 rounded-full ring-2 ring-white/80 dark:ring-black/60 shadow-sm transition-all duration-300 ease-out active:scale-90 cursor-pointer hover:-translate-y-1 hover:z-40 bg-gray-200/50 dark:bg-gray-700/50",
+                              zClasses[index] || 'z-0',
+                              isSpk ? 'scale-110 opacity-100 grayscale-0 ring-amber-400 border-2 border-amber-400' : 'opacity-100 grayscale-0 scale-100'
+                            )}
+                            title={p.name}
+                          >
+                            <div className="w-full h-full rounded-full overflow-hidden bg-gradient-to-br from-white/20 to-transparent">
+                                <img src={p.avatar} alt={p.name} className="w-full h-full object-cover" />
+                            </div>
+                          </div>
+                        </HoverCardTrigger>
+                        <HoverCardContent side="top" align="start" className="w-48 p-2 z-50">
+                          <div className="flex flex-col gap-2">
+                            <div className="flex items-center gap-2">
+                              <div className="w-6 h-6 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800">
+                                <img src={p.avatar} alt={p.name} className="w-full h-full object-cover" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium truncate">{p.name}</p>
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => {
+                                setInputValue(prev => `@${p.name} ` + prev);
+                                setIsMobileInputFocused(true);
+                              }}
+                              className="text-xs font-medium bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-400 py-1.5 px-3 rounded-md transition-colors"
+                            >
+                              Ask {p.name}
+                            </button>
+                          </div>
+                        </HoverCardContent>
+                      </HoverCard>
+                    );
                   })}
                 </div>
               </div>

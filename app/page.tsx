@@ -388,10 +388,7 @@ function HomePage() {
         initial={{ opacity: 1, y: 0 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0 }}
-        className={cn(
-          'relative z-20 w-full max-w-[800px] flex flex-col items-center',
-          classrooms.length === 0 ? 'justify-center min-h-[calc(100dvh-8rem)]' : 'mt-[10vh]',
-        )}
+        className={cn('relative z-20 w-full max-w-[800px] flex flex-col items-center', 'mt-[8vh]')}
       >
         {/* ── Logo ── */}
         <motion.div
@@ -418,31 +415,35 @@ function HomePage() {
           initial={{ opacity: 1, scale: 1 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0 }}
-          className="w-full"
+          className="w-full px-4 sm:px-0"
         >
-          <div className="w-full rounded-[24px] border border-black/5 dark:border-white/10 bg-white shadow-[0_8px_30px_-12px_rgba(0,0,0,0.08)] transition-all duration-300 focus-within:shadow-[0_8px_40px_-12px_rgba(0,0,0,0.12)] focus-within:border-black/10 dark:focus-within:border-white/20">
+          <div className="w-full max-w-[800px] mx-auto bg-white dark:bg-[#121212] rounded-[28px] sm:rounded-[36px] shadow-[0_4px_20px_rgba(0,0,0,0.04),0_16px_40px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.4),0_16px_56px_rgba(0,0,0,0.6)] transition-all duration-[600ms] ease-[cubic-bezier(0.23,1,0.32,1)] focus-within:shadow-[0_8px_32px_rgba(0,0,0,0.06),0_24px_80px_rgba(0,0,0,0.08)] dark:focus-within:shadow-[0_8px_32px_rgba(0,0,0,0.6),0_24px_80px_rgba(0,0,0,0.8)] focus-within:-translate-y-1 border border-gray-200/60 dark:border-white/10 relative z-10">
             {/* ── Greeting + Profile + Agents ── */}
-            <div className="relative z-20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
-              <GreetingBar />
-              <div className="px-3 sm:pr-3 sm:pl-0 pt-0 sm:pt-3.5 shrink-0 w-full sm:w-auto">
+            <div className="px-4 sm:px-5 pt-4 flex flex-row items-center justify-between gap-1 overflow-visible w-full min-w-0">
+              <div className="shrink min-w-0">
+                <GreetingBar />
+              </div>
+              <div className="shrink-0 flex justify-end min-w-0">
                 <AgentBar />
               </div>
             </div>
 
-            {/* Textarea */}
-            <textarea
-              ref={textareaRef}
-              placeholder={t('upload.requirementPlaceholder')}
-              className="w-full resize-none border-0 bg-transparent px-6 pt-2 pb-4 text-[15px] leading-relaxed placeholder:text-foreground/40 focus:outline-none min-h-[140px] max-h-[300px]"
-              value={form.requirement}
-              onChange={(e) => updateForm('requirement', e.target.value)}
-              onKeyDown={handleKeyDown}
-              rows={4}
-            />
+            {/* TEXT AREA */}
+            <div className="px-5 sm:px-7 py-4 sm:py-5">
+              <textarea
+                ref={textareaRef}
+                placeholder={t('upload.requirementPlaceholder')}
+                className="w-full resize-none border-0 bg-transparent text-[16px] sm:text-[17px] leading-[1.6] placeholder:text-gray-400 dark:placeholder:text-gray-500 text-black dark:text-white focus:outline-none min-h-[100px] sm:min-h-[140px] tracking-normal"
+                value={form.requirement}
+                onChange={(e) => updateForm('requirement', e.target.value)}
+                onKeyDown={handleKeyDown}
+                rows={4}
+              />
+            </div>
 
             {/* Toolbar row */}
-            <div className="px-4 pb-4 flex flex-col sm:flex-row max-sm:items-start items-end max-sm:gap-4 gap-3">
-              <div className="flex-1 min-w-0">
+            <div className="px-4 sm:px-6 pb-4 sm:pb-6 flex flex-col sm:flex-row items-center sm:items-end justify-between gap-4 sm:gap-3 lg:gap-5 w-full">
+              <div className="flex flex-row items-center justify-between gap-2 sm:gap-3 w-full sm:flex-1 min-w-0">
                 <GenerationToolbar
                   language={form.language}
                   onLanguageChange={(lang) => updateForm('language', lang)}
@@ -458,32 +459,37 @@ function HomePage() {
                 />
               </div>
 
-              {/* Voice input */}
-              <SpeechButton
-                size="md"
-                onTranscription={(text) => {
-                  setForm((prev) => {
-                    const next = prev.requirement + (prev.requirement ? ' ' : '') + text;
-                    updateRequirementCache(next);
-                    return { ...prev, requirement: next };
-                  });
-                }}
-              />
+              {/* Voice input + Send Button container */}
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                <SpeechButton
+                  size="md"
+                  onTranscription={(text) => {
+                    setForm((prev) => {
+                      const next = prev.requirement + (prev.requirement ? ' ' : '') + text;
+                      updateRequirementCache(next);
+                      return { ...prev, requirement: next };
+                    });
+                  }}
+                />
 
-              {/* Send button */}
-              <button
-                onClick={handleGenerate}
-                disabled={!canGenerate}
-                className={cn(
-                  'shrink-0 h-10 rounded-full w-full sm:w-auto flex items-center justify-center gap-2 transition-all duration-300 px-6 shadow-sm backdrop-blur-md active:scale-[0.98]',
-                  canGenerate
-                      ? 'bg-zinc-900 border-transparent text-white dark:bg-zinc-100 dark:text-zinc-900 hover:shadow-md hover:-translate-y-[1px] cursor-pointer'
-                      : 'bg-white/60 dark:bg-black/40 border border-black/5 dark:border-white/5 text-black/40 dark:text-white/40 cursor-not-allowed',
-                )}
-              >
-                <span className="text-sm font-semibold">{t('toolbar.enterClassroom')}</span>
-                <ArrowUp className="size-4" />
-              </button>
+                {/* Send button */}
+                <button
+                  onClick={handleGenerate}
+                  disabled={!canGenerate}
+                  className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-3 rounded-full text-[15px] sm:text-[15px] font-medium tracking-tight transition-all duration-500
+                    ${
+                      canGenerate
+                        ? 'bg-[#1d1d1f] dark:bg-white text-white dark:text-black shadow-md hover:bg-black dark:hover:bg-gray-200 hover:scale-[1.02] hover:shadow-lg active:scale-[0.97]'
+                        : 'bg-gray-100 dark:bg-[#1e1e1e] border border-gray-200/50 dark:border-white/5 text-gray-400 dark:text-[#555] cursor-not-allowed shadow-none'
+                    }`}
+                >
+                  Enter Classroom
+                  <ArrowUp
+                    strokeWidth={2}
+                    className={`w-4 h-4 transition-all duration-300 ${canGenerate ? 'opacity-100 translate-y-0' : 'opacity-40 translate-y-1'}`}
+                  />
+                </button>
+              </div>
             </div>
           </div>
         </motion.div>
@@ -514,15 +520,15 @@ function HomePage() {
           {/* Tabs Navigation */}
           <div className="flex justify-center mb-8">
             <TabsList className="bg-white/10 dark:bg-black/40 backdrop-blur-md border border-white/10 rounded-full p-1 h-auto flex gap-1">
-              <TabsTrigger 
-                value="featured" 
-                className="rounded-full px-5 py-2 text-sm font-medium transition-all text-white/70 hover:text-white"
+              <TabsTrigger
+                value="featured"
+                className="rounded-full px-5 py-2 text-sm font-medium transition-all !text-white/70 hover:!text-white data-[state=active]:!text-white data-[state=active]:!bg-white/20 data-[state=active]:shadow-md"
               >
                 Featured
               </TabsTrigger>
-              <TabsTrigger 
-                value="my-courses" 
-                className="relative rounded-full px-5 py-2 text-sm font-medium transition-all text-white/70 hover:text-white"
+              <TabsTrigger
+                value="my-courses"
+                className="relative rounded-full px-5 py-2 text-sm font-medium transition-all !text-white/70 hover:!text-white data-[state=active]:!text-white data-[state=active]:!bg-white/20 data-[state=active]:shadow-md"
               >
                 My Courses
                 {classrooms.length > 0 && (
@@ -535,23 +541,29 @@ function HomePage() {
           </div>
 
           {/* Featured Content Tab */}
-          <TabsContent value="featured" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+          <TabsContent
+            value="featured"
+            className="mt-0 focus-visible:outline-none focus-visible:ring-0"
+          >
             <FeaturedCourses />
           </TabsContent>
 
           {/* My Courses Tab */}
-          <TabsContent value="my-courses" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+          <TabsContent
+            value="my-courses"
+            className="mt-0 focus-visible:outline-none focus-visible:ring-0"
+          >
             {classrooms.length > 0 ? (
               <div
                 className={cn(
                   'w-full pt-4',
                   'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4',
-                  'justify-items-center'
+                  'justify-items-center',
                 )}
               >
                 <div
                   className="w-full aspect-video rounded-2xl flex flex-col items-center justify-center cursor-pointer overflow-hidden border border-dashed border-white/20 hover:border-white/50 bg-white/5 hover:bg-white/10 transition-colors duration-200"
-                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                 >
                   <Plus className="size-6 text-white/50 mb-2" />
                   <span className="text-[14px] text-white/50 font-medium">Create New</span>
@@ -562,7 +574,8 @@ function HomePage() {
                     layoutId={`classroom-${classroom.id}`}
                     className="w-full flex justify-center"
                   >
-                    <ClassroomCard 
+                    <ClassroomCard
+                      slide={thumbnails[classroom.id]}
                       formatDate={formatDate}
                       onDelete={handleDelete}
                       onRename={handleRename}
@@ -580,7 +593,7 @@ function HomePage() {
                 <Box className="size-10 text-white/20 mb-4" />
                 <p className="text-white/40 text-sm">No recent courses</p>
                 <button
-                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                   className="mt-6 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-colors"
                 >
                   Create one now
@@ -592,8 +605,11 @@ function HomePage() {
       </motion.div>
 
       {/* Footer — flows with content, at the very end */}
-      <div className="mt-auto pt-12 pb-4 text-center text-xs text-white">
-        NEX AI
+      <div className="mt-auto pt-16 pb-6 text-center text-white flex flex-col gap-2">
+        <span className="text-2xl font-black tracking-wide">SYNAPSE AI</span>
+        <span className="text-[15px] font-medium text-white/80">
+          Designed and developed by Saurav Thakur
+        </span>
       </div>
     </div>
   );
@@ -682,7 +698,10 @@ function GreetingBar() {
   };
 
   return (
-    <div ref={containerRef} className="relative pl-4 pr-2 pt-3.5 pb-1 w-auto">
+    <div
+      ref={containerRef}
+      className="relative pl-4 pr-2 pt-3.5 pb-1 w-auto shrink sm:flex-none min-w-0"
+    >
       <input
         ref={avatarInputRef}
         type="file"
@@ -694,7 +713,7 @@ function GreetingBar() {
       {/* ── Collapsed pill (always in flow) ── */}
       {!open && (
         <div
-          className="flex items-center gap-2.5 cursor-pointer transition-all duration-200 group rounded-full px-2.5 py-1.5 border border-border/50 text-muted-foreground/70 hover:text-foreground hover:bg-muted/60 active:scale-[0.97]"
+          className="inline-flex items-center gap-2.5 cursor-pointer transition-all duration-200 group rounded-full px-2.5 py-1.5 border border-border/50 text-muted-foreground/70 hover:text-foreground hover:bg-muted/60 active:scale-[0.97] min-w-0 max-w-full"
           onClick={() => setOpen(true)}
         >
           <div className="shrink-0 relative">
@@ -705,11 +724,11 @@ function GreetingBar() {
               <Pencil className="size-[7px] text-muted-foreground/70" />
             </div>
           </div>
-          <div className="flex-1 min-w-0">
+          <div className="shrink min-w-0">
             <Tooltip>
               <TooltipTrigger asChild>
                 <span className="leading-none select-none flex items-center gap-1">
-                  <span className="text-[13px] font-semibold text-foreground/85 group-hover:text-foreground transition-colors">
+                  <span className="text-[13px] font-semibold text-foreground/85 group-hover:text-foreground transition-colors truncate">
                     {t('home.greetingWithName', { name: displayName })}
                   </span>
                   <ChevronDown className="size-3 text-muted-foreground/30 group-hover:text-muted-foreground/60 transition-colors shrink-0" />
@@ -957,11 +976,11 @@ function ClassroomCard({
             viewportRatio={slide.viewportRatio ?? 0.5625}
           />
         ) : !slide ? (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="size-12 rounded-2xl border border-black/8 dark:border-white/10 bg-white/80 dark:bg-white/5 flex items-center justify-center">
-                <span className="text-xl opacity-50">📄</span>
-              </div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="size-12 rounded-2xl border border-black/8 dark:border-white/10 bg-white/80 dark:bg-white/5 flex items-center justify-center">
+              <span className="text-xl opacity-50">📄</span>
             </div>
+          </div>
         ) : null}
 
         {/* Delete — top-right, only on hover */}

@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  Settings,
-  Loader2,
-  Download,
-  FileDown,
-  Package,
-  PanelLeft,
-} from 'lucide-react';
+import { Settings, Loader2, Download, FileDown, Package, PanelLeft } from 'lucide-react';
 import { useI18n } from '@/lib/hooks/use-i18n';
 import { LanguageSwitcher } from './language-switcher';
 import { useState, useEffect, useRef, useCallback } from 'react';
@@ -108,7 +101,7 @@ export function Header({ currentSceneTitle }: HeaderProps) {
               {user ? (
                 <span className="truncate max-w-[100px]">{user.email?.split('@')[0]}</span>
               ) : (
-                "Login"
+                'Login'
               )}
             </button>
           </div>
@@ -142,7 +135,7 @@ export function Header({ currentSceneTitle }: HeaderProps) {
               'shrink-0 p-2.5 rounded-full transition-all ease-out active:scale-[0.95]',
               canExport && !isExporting
                 ? 'text-foreground/60 hover:bg-black/5 dark:hover:bg-white/10 hover:text-foreground'
-                : 'text-foreground/20 cursor-not-allowed'
+                : 'text-foreground/20 cursor-not-allowed',
             )}
           >
             {isExporting ? (

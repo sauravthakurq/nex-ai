@@ -10,7 +10,7 @@ import { useMediaGenerationStore } from '@/lib/store/media-generation';
 import { useSettingsStore } from '@/lib/store/settings';
 import { db, mediaFileKey } from '@/lib/utils/database';
 import type { SceneOutline } from '@/lib/types/generation';
-import type { MediaGenerationRequest } from '@/lib/media/types';
+import type { MediaGenerationRequest, ImageProviderId } from '@/lib/media/types';
 import { createLogger } from '@/lib/logger';
 
 const log = createLogger('MediaOrchestrator');
@@ -99,6 +99,30 @@ export async function retryMediaTask(elementId: string): Promise<void> {
   );
 }
 
+export async function enhancePollinationsImage(elementId: string): Promise<void> {
+  const store = useMediaGenerationStore.getState();
+  const task = store.getTask(elementId);
+  // Only valid for images that are done and originally pollinations
+  if (!task || task.type !== 'image' || task.status !== 'done') return;
+
+  const dbKey = mediaFileKey(task.stageId, elementId);
+  await db.mediaFiles.delete(dbKey).catch(() => {});
+
+  store.markPendingForRetry(elementId);
+  await generateSingleMedia(
+    {
+      type: task.type,
+      prompt: task.prompt,
+      elementId: task.elementId,
+      aspectRatio: task.params.aspectRatio as MediaGenerationRequest['aspectRatio'],
+      style: task.params.style,
+      providerId: 'pollinations',
+      modelId: 'flux', // Upgrade parameter
+    },
+    task.stageId,
+  );
+}
+
 // ==================== Internal ====================
 
 async function generateSingleMedia(
@@ -113,10 +137,14 @@ async function generateSingleMedia(
     let resultUrl: string;
     let posterUrl: string | undefined;
     let mimeType: string;
+    let providerId: string | undefined;
+    let modelId: string | undefined;
 
     if (req.type === 'image') {
       const result = await callImageApi(req, abortSignal);
       resultUrl = result.url;
+      providerId = result.providerId;
+      modelId = result.modelId;
       mimeType = 'image/png';
     } else {
       const result = await callVideoApi(req, abortSignal);
@@ -144,6 +172,8 @@ async function generateSingleMedia(
       params: JSON.stringify({
         aspectRatio: req.aspectRatio,
         style: req.style,
+        providerId,
+        modelId,
       }),
       createdAt: Date.now(),
     });
@@ -152,6 +182,22 @@ async function generateSingleMedia(
     const objectUrl = URL.createObjectURL(blob);
     const posterObjectUrl = posterBlob ? URL.createObjectURL(posterBlob) : undefined;
     useMediaGenerationStore.getState().markDone(req.elementId, objectUrl, posterObjectUrl);
+
+    // Also explicitly set the provider and model on the task so the UI can read it
+    useMediaGenerationStore.setState((state) => {
+      const task = state.tasks[req.elementId];
+      if (!task) return state;
+      return {
+        tasks: {
+          ...state.tasks,
+          [req.elementId]: {
+            ...task,
+            providerId,
+            modelId,
+          },
+        },
+      };
+    });
   } catch (err) {
     if (abortSignal?.aborted) return;
     const message = err instanceof Error ? err.message : String(err);
@@ -186,16 +232,43 @@ async function generateSingleMedia(
 async function callImageApi(
   req: MediaGenerationRequest,
   abortSignal?: AbortSignal,
-): Promise<{ url: string }> {
+): Promise<{ url: string; providerId?: string; modelId?: string }> {
   const settings = useSettingsStore.getState();
-  const providerConfig = settings.imageProvidersConfig?.[settings.imageProviderId];
+  const providerId = (req.providerId || settings.imageProviderId || 'seedream') as ImageProviderId;
+  const modelId = req.modelId || settings.imageModelId || 'default';
+  const providerConfig = settings.imageProvidersConfig?.[providerId];
+
+  if (providerId === 'pollinations') {
+    const keyParam = providerConfig?.apiKey
+      ? `&key=${encodeURIComponent(providerConfig.apiKey)}`
+      : '';
+    // Use GET backend route directly returning the image
+    const response = await fetch(
+      `/api/pollinations?prompt=${encodeURIComponent(req.prompt)}&model=${encodeURIComponent(modelId)}${keyParam}`,
+      {
+        method: 'GET',
+        signal: abortSignal,
+      },
+    );
+    if (!response.ok) {
+      throw new MediaApiError(`Pollinations API returned ${response.status}`, 'POLLINATIONS_ERROR');
+    }
+    // The backend route directly returns image/png buffer. So we parse as blob and return an object URL?
+    // Oh wait, if we return a URL like '/api/pollinations...', the generator later calls `fetchAsBlob`,
+    // which DOES another fetch. That's fine and keeps architecture clean!
+    return {
+      url: `/api/pollinations?prompt=${encodeURIComponent(req.prompt)}&model=${encodeURIComponent(modelId)}${keyParam}`,
+      providerId,
+      modelId,
+    };
+  }
 
   const response = await fetch('/api/generate/image', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-image-provider': settings.imageProviderId || '',
-      'x-image-model': settings.imageModelId || '',
+      'x-image-provider': providerId,
+      'x-image-model': modelId,
       'x-api-key': providerConfig?.apiKey || '',
       'x-base-url': providerConfig?.baseUrl || '',
     },
@@ -220,7 +293,7 @@ async function callImageApi(
   const url =
     data.result?.url || (data.result?.base64 ? `data:image/png;base64,${data.result.base64}` : '');
   if (!url) throw new Error('No image URL in response');
-  return { url };
+  return { url, providerId, modelId };
 }
 
 async function callVideoApi(

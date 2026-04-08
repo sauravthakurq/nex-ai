@@ -74,7 +74,9 @@ export type ImageProviderId =
   | 'qwen-image'
   | 'nano-banana'
   | 'minimax-image'
-  | 'grok-image';
+  | 'grok-image'
+  | 'custom-image'
+  | 'pollinations';
 // Add new image providers below (uncomment and modify):
 // | 'dall-e'
 // | 'midjourney'
@@ -300,6 +302,10 @@ export interface MediaGenerationRequest {
   aspectRatio?: '16:9' | '4:3' | '1:1' | '9:16';
   /** Optional artistic style hint */
   style?: string;
+  /** Optional provider override */
+  providerId?: string;
+  /** Optional model override */
+  modelId?: string;
 }
 
 /**

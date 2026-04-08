@@ -44,7 +44,7 @@ const SLIDE_ACTIONS = ['spotlight', 'laser', 'play_video'];
 const DEFAULT_AGENTS: Record<string, AgentConfig> = {
   'default-1': {
     id: 'default-1',
-    name: 'AI teacher',
+    name: 'AI Teacher',
     role: 'teacher',
     persona: `You are the lead teacher of this classroom. You teach with clarity, warmth, and genuine enthusiasm for the subject matter.
 
@@ -60,6 +60,7 @@ You can spotlight or laser-point at slide elements, and use the whiteboard for h
 Tone: Professional yet approachable. Patient. Encouraging. You genuinely care about whether students understand.`,
     avatar: '/avatars/teacher.png',
     color: '#3b82f6',
+    voiceConfig: { providerId: 'openai-tts', voiceId: 'alloy' },
     allowedActions: [...SLIDE_ACTIONS, ...WHITEBOARD_ACTIONS],
     priority: 10,
     createdAt: new Date(),
@@ -68,7 +69,7 @@ Tone: Professional yet approachable. Patient. Encouraging. You genuinely care ab
   },
   'default-2': {
     id: 'default-2',
-    name: 'AI助教',
+    name: 'AI Assistant',
     role: 'assistant',
     persona: `You are the teaching assistant. You support the lead teacher by filling in gaps, answering side questions, and making sure no student is left behind.
 
@@ -84,6 +85,7 @@ You play a supportive role — you don't take over the lesson, but you make sure
 Tone: Friendly, warm, down-to-earth. Like a helpful older classmate who just "gets it."`,
     avatar: '/avatars/assist.png',
     color: '#10b981',
+    voiceConfig: { providerId: 'openai-tts', voiceId: 'coral' },
     allowedActions: [...WHITEBOARD_ACTIONS],
     priority: 7,
     createdAt: new Date(),
@@ -92,7 +94,7 @@ Tone: Friendly, warm, down-to-earth. Like a helpful older classmate who just "ge
   },
   'default-3': {
     id: 'default-3',
-    name: '显眼包',
+    name: 'Class Clown ( Nova )',
     role: 'student',
     persona: `You are the class clown — the student everyone notices. You bring energy and laughter to the classroom with your witty comments, playful observations, and unexpected takes on the material.
 
@@ -108,6 +110,7 @@ You keep things light. When the class gets too heavy or boring, you're the one w
 Tone: Playful, energetic, a little cheeky. You speak casually, like you're chatting with friends. Keep responses SHORT — one-liners and quick reactions, not paragraphs.`,
     avatar: '/avatars/clown.png',
     color: '#f59e0b',
+    voiceConfig: { providerId: 'openai-tts', voiceId: 'nova' },
     allowedActions: [...WHITEBOARD_ACTIONS],
     priority: 4,
     createdAt: new Date(),
@@ -116,7 +119,7 @@ Tone: Playful, energetic, a little cheeky. You speak casually, like you're chatt
   },
   'default-4': {
     id: 'default-4',
-    name: '好奇宝宝',
+    name: 'Curious Mind ( Saurav )',
     role: 'student',
     persona: `You are the endlessly curious student. You always have a question — and your questions often push the whole class to think deeper.
 
@@ -132,6 +135,7 @@ You represent the voice of genuine curiosity. Your questions make the teacher's 
 Tone: Eager, enthusiastic, occasionally puzzled. You speak with the excitement of someone discovering things for the first time. Keep questions concise and direct.`,
     avatar: '/avatars/curious.png',
     color: '#ec4899',
+    voiceConfig: { providerId: 'openai-tts', voiceId: 'echo' },
     allowedActions: [...WHITEBOARD_ACTIONS],
     priority: 5,
     createdAt: new Date(),
@@ -140,7 +144,7 @@ Tone: Eager, enthusiastic, occasionally puzzled. You speak with the excitement o
   },
   'default-5': {
     id: 'default-5',
-    name: '笔记员',
+    name: 'Note-Taker ( Atlas )',
     role: 'student',
     persona: `You are the dedicated note-taker of the class. You listen carefully, organize information, and love sharing your structured summaries with everyone.
 
@@ -156,6 +160,7 @@ You're the student everyone wants to sit next to during exams. Your notes are le
 Tone: Organized, helpful, slightly studious. You speak clearly and precisely. When sharing notes, use structured formats — numbered lists, key terms bolded, clear headers.`,
     avatar: '/avatars/note-taker.png',
     color: '#06b6d4',
+    voiceConfig: { providerId: 'openai-tts', voiceId: 'onyx' },
     allowedActions: [...WHITEBOARD_ACTIONS],
     priority: 5,
     createdAt: new Date(),
@@ -164,7 +169,7 @@ Tone: Organized, helpful, slightly studious. You speak clearly and precisely. Wh
   },
   'default-6': {
     id: 'default-6',
-    name: '思考者',
+    name: 'Deep Thinker ( Zara )',
     role: 'student',
     persona: `You are the deep thinker of the class. While others focus on understanding the basics, you're already connecting ideas, questioning assumptions, and exploring implications.
 
@@ -180,6 +185,7 @@ You don't speak as often as others, but when you do, it changes the direction of
 Tone: Thoughtful, measured, intellectually curious. You pause before speaking. Your sentences are deliberate and carry weight. Ask provocative questions that make everyone stop and think.`,
     avatar: '/avatars/thinker.png',
     color: '#8b5cf6',
+    voiceConfig: { providerId: 'openai-tts', voiceId: 'shimmer' },
     allowedActions: [...WHITEBOARD_ACTIONS],
     priority: 6,
     createdAt: new Date(),

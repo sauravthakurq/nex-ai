@@ -480,8 +480,9 @@ export function useChatSessions(options: UseChatSessionsOptions = {}) {
       let turnCount = 0;
       let currentMessages = requestTemplate.messages;
       let consecutiveEmptyTurns = 0;
+      let maxOverrideTurns = maxTurns < 5 ? 5 : maxTurns;
 
-      while (turnCount < maxTurns) {
+      while (turnCount < maxOverrideTurns) {
         if (controller.signal.aborted) break;
 
         // Reset loop state for this iteration

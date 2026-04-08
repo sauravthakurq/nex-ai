@@ -8,6 +8,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { useSceneGenerator } from '@/lib/hooks/use-scene-generator';
 import { useMediaGenerationStore } from '@/lib/store/media-generation';
+import { saveFeaturedClassroom } from '@/lib/firebase/classrooms';
 import { useWhiteboardHistoryStore } from '@/lib/store/whiteboard-history';
 import { createLogger } from '@/lib/logger';
 import { MediaStageProvider } from '@/lib/contexts/media-stage-context';
@@ -27,8 +28,45 @@ export default function ClassroomDetailPage() {
   const generationStartedRef = useRef(false);
 
   const { generateRemaining, retrySingleOutline, stop } = useSceneGenerator({
-    onComplete: () => {
+    onComplete: async () => {
       log.info('[Classroom] All scenes generated');
+
+      try {
+        const store = useStageStore.getState();
+        if (store.stage) {
+          const { getFirstSlideByStages } = await import('@/lib/utils/stage-storage');
+          const firstSlides = await getFirstSlideByStages([classroomId]);
+          const firstSlide = firstSlides[classroomId];
+
+          // Extract an appropriate thumbnail
+          let thumbnail =
+            'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1000&auto=format&fit=crop';
+          if (firstSlide?.elements) {
+            const imgElement = firstSlide.elements.find(
+              (el: any) => el.type === 'image' && el.src && !el.src.startsWith('blob:'),
+            );
+            if (imgElement) {
+              thumbnail = (imgElement as any).src;
+            }
+          }
+
+          // Add it to our Firebase featured stream globally.
+          await saveFeaturedClassroom({
+            id: classroomId,
+            topic: store.stage.name || 'Untitled Classroom',
+            title: store.stage.name || 'Untitled Classroom',
+            description: store.stage.description || 'Generated Classroom',
+            thumbnail: thumbnail,
+            createdAt: Date.now(),
+            classroomData: {
+              stage: store.stage,
+              scenes: store.scenes,
+            },
+          });
+        }
+      } catch (err) {
+        log.error('Could not save to featured firebase', err);
+      }
     },
   });
 
@@ -64,6 +102,34 @@ export default function ClassroomDetailPage() {
           }
         } catch (fetchErr) {
           log.warn('Server-side storage fetch failed:', fetchErr);
+        }
+      }
+
+      // If still no classroom data after both local and generic next.js api, try Firebase
+      if (!useStageStore.getState().stage) {
+        log.info('No data locally or via API, trying Firebase for:', classroomId);
+        try {
+          const { getClassroomById } = await import('@/lib/firebase/classrooms');
+          const firebaseClassroom = await getClassroomById(classroomId);
+
+          if (firebaseClassroom && firebaseClassroom.classroomData) {
+            const { stage, scenes } = firebaseClassroom.classroomData;
+            useStageStore.getState().setStage(stage);
+            useStageStore.setState({
+              scenes,
+              currentSceneId: scenes[0]?.id ?? null,
+            });
+            log.info('Loaded from Firebase Firestore storage:', classroomId);
+
+            if (stage.generatedAgentConfigs?.length) {
+              const { saveGeneratedAgents } = await import('@/lib/orchestration/registry/store');
+              const { useSettingsStore } = await import('@/lib/store/settings');
+              const agentIds = await saveGeneratedAgents(stage.id, stage.generatedAgentConfigs);
+              useSettingsStore.getState().setSelectedAgentIds(agentIds);
+            }
+          }
+        } catch (fbErr) {
+          log.warn('Firebase query failed:', fbErr);
         }
       }
 

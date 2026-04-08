@@ -9,6 +9,7 @@ import { ThemeProvider } from '@/lib/hooks/use-theme';
 import { I18nProvider } from '@/lib/hooks/use-i18n';
 import { Toaster } from '@/components/ui/sonner';
 import { ServerProvidersInit } from '@/components/server-providers-init';
+import { PwaProvider } from '@/components/pwa-manager';
 
 const inter = localFont({
   src: '../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2',
@@ -17,9 +18,10 @@ const inter = localFont({
 });
 
 export const metadata: Metadata = {
-  title: 'NEX AI',
+  title: 'SYNAPSE AI',
   description:
-    'NEX AI is an immersive interactive classroom platform. Upload a PDF to generate a premium multi-agent learning experience.',
+    'SYNAPSE AI is an immersive interactive classroom platform. Upload a PDF to generate a premium multi-agent learning experience. Designed and developed by Saurav Thakur.',
+  manifest: '/manifest.json',
 };
 
 export default function RootLayout({
@@ -35,9 +37,11 @@ export default function RootLayout({
       >
         <ThemeProvider>
           <I18nProvider>
-            <ServerProvidersInit />
-            {children}
-            <Toaster position="top-center" />
+            <PwaProvider>
+              <ServerProvidersInit />
+              {children}
+              <Toaster position="top-center" />
+            </PwaProvider>
           </I18nProvider>
         </ThemeProvider>
       </body>

@@ -1,0 +1,16 @@
+{
+  "name": "SYNAPSE AI",
+  "short_name": "SYNAPSE AI",
+  "description": "The Ultimate Productivity and Generation Tool",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "/app-logo.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png"
+    }
+  ]
+}

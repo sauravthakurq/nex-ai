@@ -85,5 +85,5 @@ Your initial mode is **project_info**.`;
 }
 
 function buildPBLSystemPromptZH(config: PBLSystemPromptConfig): string {
-  return buildPBLSystemPrompt({...config, language: "en"});
+  return buildPBLSystemPrompt({ ...config, language: 'en' });
 }

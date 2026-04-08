@@ -40,7 +40,8 @@ function TooltipContent({
     <TooltipPrimitive.Portal>
       <TooltipPrimitive.Content
         data-slot="tooltip-content"
-        sideOffset={sideOffset} collisionPadding={16}
+        sideOffset={sideOffset}
+        collisionPadding={16}
         className={cn(
           'rounded-md px-3 py-1.5 text-xs bg-foreground text-background z-50 w-fit max-w-xs origin-(--radix-tooltip-content-transform-origin)',
           className,

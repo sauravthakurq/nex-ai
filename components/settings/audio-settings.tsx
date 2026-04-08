@@ -64,7 +64,7 @@ function getLanguageName(code: string, t: (key: string) => string): string {
 interface AudioSettingsProps {
   onSave?: () => void;
 }
-import { TTSVoiceList } from "./tts-voice-list";
+import { TTSVoiceList } from './tts-voice-list';
 
 export function AudioSettings({ onSave }: AudioSettingsProps = {}) {
   const { t } = useI18n();

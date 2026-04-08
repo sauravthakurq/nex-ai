@@ -21,6 +21,7 @@ import {
   MessageSquare,
   Minus,
   Plus,
+  Command,
 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import type { AgentConfig } from '@/lib/orchestration/registry/types';
@@ -83,7 +84,8 @@ function AgentVoicePill({
       const courseLanguage =
         (typeof localStorage !== 'undefined' && localStorage.getItem('generationLanguage')) ||
         'zh-CN';
-      const previewText = courseLanguage === 'en-US' ? 'Welcome to AI Classroom' : 'Welcome toAIClassroom';
+      const previewText =
+        courseLanguage === 'en-US' ? 'Welcome to AI Classroom' : 'Welcome toAIClassroom';
 
       if (providerId === 'browser-native-tts') {
         const { promise, cancel } = playBrowserTTSPreview({ text: previewText, voice: voiceId });
@@ -308,7 +310,8 @@ function TeacherVoicePill({
       const courseLanguage =
         (typeof localStorage !== 'undefined' && localStorage.getItem('generationLanguage')) ||
         'zh-CN';
-      const previewText = courseLanguage === 'en-US' ? 'Welcome to AI Classroom' : 'Welcome toAIClassroom';
+      const previewText =
+        courseLanguage === 'en-US' ? 'Welcome to AI Classroom' : 'Welcome toAIClassroom';
 
       if (providerId === 'browser-native-tts') {
         const { promise, cancel } = playBrowserTTSPreview({ text: previewText, voice: voiceId });
@@ -682,25 +685,46 @@ export function AgentBar() {
   };
 
   return (
-    <div ref={containerRef} className="relative w-auto sm:w-96 min-w-0">
+    <div ref={containerRef} className="relative w-full sm:w-auto min-w-0">
       <Tooltip>
         <TooltipTrigger asChild>
           <button
-            className={cn(
-              'group flex items-center gap-2 cursor-pointer rounded-full px-2.5 py-2 transition-all w-full',
-              'border border-border/50 text-muted-foreground/70 hover:text-foreground hover:bg-muted/60',
-            )}
             onClick={() => setOpen(!open)}
+            className="flex items-center justify-between gap-1.5 sm:gap-3 pl-3 sm:pl-4 pr-1.5 sm:pr-2.5 py-1.5 rounded-full bg-gray-50 dark:bg-[#1e1e1e] hover:bg-gray-100 dark:hover:bg-[#2a2a2a] border border-gray-200/50 dark:border-white/5 shadow-sm transition-all duration-300 group min-w-0 w-auto active:scale-[0.98]"
           >
-            <span className="text-xs text-muted-foreground/60 group-hover:text-muted-foreground transition-colors hidden sm:block font-medium flex-1 text-left truncate">
-              {open ? t('agentBar.expandedTitle') : t('agentBar.readyToLearn')}
+            <span className="text-[13px] sm:text-[13.5px] font-medium text-black dark:text-white tracking-tight truncate flex-1 text-left hidden sm:inline-block">
+              Ready to learn together?
             </span>
-            {avatarRow}
-            {open ? (
-              <ChevronUp className="size-3 text-muted-foreground/40 group-hover:text-muted-foreground/70 transition-colors" />
-            ) : (
-              <ChevronDown className="size-3 text-muted-foreground/40 group-hover:text-muted-foreground/70 transition-colors" />
-            )}
+
+            <div className="flex items-center gap-1 sm:gap-2 shrink-0 bg-white dark:bg-[#2c2c2e] p-1 pl-1.5 sm:pl-2 rounded-full border border-gray-100 dark:border-white/5 shadow-sm">
+              {/* --- TEACHER/ASSISTANT IMAGES PLACEHOLDER START --- */}
+              <div className="flex -space-x-2.5">
+                <div className="w-7 h-7 rounded-full bg-slate-100 dark:bg-[#3a3a3c] border-[1.5px] border-white dark:border-[#1e1e1e] flex items-center justify-center z-10 overflow-hidden shadow-sm">
+                  {teacherAgent ? (
+                    <img src={teacherAgent.avatar} className="w-full h-full object-cover" alt="" />
+                  ) : (
+                    <Command strokeWidth={1.5} className="w-3.5 h-3.5 text-black dark:text-white" />
+                  )}
+                </div>
+                <div className="w-7 h-7 rounded-full bg-gray-100 dark:bg-[#48484a] border-[1.5px] border-white dark:border-[#1e1e1e] flex items-center justify-center z-0 overflow-hidden shadow-sm">
+                  {agents.find((a) => a.role === 'assistant') ? (
+                    <img
+                      src={agents.find((a) => a.role === 'assistant')?.avatar}
+                      className="w-full h-full object-cover"
+                      alt=""
+                    />
+                  ) : (
+                    <Sparkles strokeWidth={1.5} className="w-3 h-3 text-black dark:text-white" />
+                  )}
+                </div>
+              </div>
+              {/* --- TEACHER/ASSISTANT IMAGES PLACEHOLDER END --- */}
+
+              <div className="flex items-center gap-1.5 px-1.5">
+                <Shuffle strokeWidth={1.5} className="w-3.5 h-3.5 text-black dark:text-white" />
+                <Volume2 strokeWidth={1.5} className="w-3.5 h-3.5 text-black dark:text-white" />
+              </div>
+            </div>
           </button>
         </TooltipTrigger>
         {!open && (
@@ -717,9 +741,9 @@ export function AgentBar() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -4, scale: 0.97 }}
             transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-            className="absolute right-[-12px] sm:right-0 max-sm:right-0 top-full mt-1 z-50 w-[calc(100vw-2rem)] sm:w-96"
+            className="absolute -right-2 sm:right-0 max-sm:mr-0 top-full mt-1 z-50 w-[calc(100vw-1.5rem)] sm:w-96 max-w-[400px]"
           >
-            <div className="rounded-2xl bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm ring-1 ring-black/[0.04] dark:ring-white/[0.06] shadow-[0_1px_8px_-2px_rgba(0,0,0,0.06)] dark:shadow-[0_1px_8px_-2px_rgba(0,0,0,0.3)] px-2 py-1.5">
+            <div className="rounded-2xl bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm ring-1 ring-black/[0.04] dark:ring-white/[0.06] shadow-[0_1px_8px_-2px_rgba(0,0,0,0.06)] dark:shadow-[0_1px_8px_-2px_rgba(0,0,0,0.3)] px-2 py-1.5 transform origin-top-right">
               {/* Teacher — always visible */}
               {teacherAgent && (
                 <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-primary/5 mb-2">

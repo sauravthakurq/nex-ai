@@ -17,6 +17,14 @@ import {
   testMiniMaxImageConnectivity,
 } from './adapters/minimax-image-adapter';
 import { generateWithGrokImage, testGrokImageConnectivity } from './adapters/grok-image-adapter';
+import {
+  generateWithCustomImage,
+  testCustomImageConnectivity,
+} from './adapters/custom-image-adapter';
+import {
+  generateWithPollinations,
+  testPollinationsConnectivity,
+} from './adapters/pollinations-adapter';
 
 export const IMAGE_PROVIDERS: Record<ImageProviderId, ImageProviderConfig> = {
   seedream: {
@@ -93,6 +101,25 @@ export const IMAGE_PROVIDERS: Record<ImageProviderId, ImageProviderConfig> = {
     ],
     supportedAspectRatios: ['16:9', '4:3', '1:1', '9:16'],
   },
+  'custom-image': {
+    id: 'custom-image',
+    name: 'Custom',
+    requiresApiKey: true,
+    defaultBaseUrl: 'https://api.openai.com/v1',
+    models: [{ id: 'dall-e-3', name: 'DALL-E 3' }],
+    supportedAspectRatios: ['16:9', '4:3', '1:1', '9:16'],
+  },
+  pollinations: {
+    id: 'pollinations',
+    name: 'Pollinations AI',
+    requiresApiKey: false, // Optional api key
+    defaultBaseUrl: 'https://gen.pollinations.ai',
+    models: [
+      { id: 'zimage', name: 'Pollinations Fast (Preview)' },
+      { id: 'flux', name: 'Pollinations Flux (HD)' },
+    ],
+    supportedAspectRatios: ['16:9', '4:3', '1:1', '9:16'],
+  },
 };
 
 export async function testImageConnectivity(
@@ -109,6 +136,10 @@ export async function testImageConnectivity(
       return testMiniMaxImageConnectivity(config);
     case 'grok-image':
       return testGrokImageConnectivity(config);
+    case 'custom-image':
+      return testCustomImageConnectivity(config);
+    case 'pollinations':
+      return testPollinationsConnectivity(config);
     default:
       return {
         success: false,
@@ -132,6 +163,10 @@ export async function generateImage(
       return generateWithMiniMaxImage(config, options);
     case 'grok-image':
       return generateWithGrokImage(config, options);
+    case 'custom-image':
+      return generateWithCustomImage(config, options);
+    case 'pollinations':
+      return generateWithPollinations(config, options);
     default:
       throw new Error(`Unsupported image provider: ${config.providerId}`);
   }

@@ -4,7 +4,14 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Mail, Lock, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { auth, googleProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from '@/lib/firebase';
+import {
+  auth,
+  googleProvider,
+  signInWithPopup,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+} from '@/lib/firebase';
 import { toast } from 'sonner';
 import { useFirebaseAuth } from '@/lib/firebase/auth-hook';
 
@@ -72,14 +79,14 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
             className="relative w-full max-w-md bg-background border rounded-2xl shadow-xl overflow-hidden"
           >
             {/* Header Image */}
-            <div className="w-full relative overflow-hidden bg-background">
-              <img 
-                src="/kl.png" 
-                alt="Login Header" 
-                className="w-full h-auto md:h-56 object-cover object-center border-b border-border/50" 
+            <div className="w-full relative overflow-hidden bg-background h-48 md:h-56">
+              <img
+                src="/k.jpeg"
+                alt="Login Header"
+                className="absolute inset-0 w-full h-full object-cover object-center border-b border-border/50"
                 onError={(e) => {
-                  e.currentTarget.src = "/logo-hh.png"; 
-                }} 
+                  e.currentTarget.src = '/logo-hh.png';
+                }}
               />
             </div>
 
@@ -94,9 +101,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
             <div className="p-6 space-y-6">
               <div className="text-center">
                 <h2 className="text-2xl font-bold">Login or Register</h2>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Proper Premium Age
-                </p>
+                <p className="text-sm text-muted-foreground mt-1">Welcome Back 👋</p>
               </div>
 
               {!user ? (
@@ -128,7 +133,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                     </div>
 
                     <Button type="submit" className="w-full" disabled={isSubmitting}>
-                      {isSubmitting ? 'Processing...' : (isRegister ? 'Register' : 'Sign In')}
+                      {isSubmitting ? 'Processing...' : isRegister ? 'Register' : 'Sign In'}
                     </Button>
                   </form>
 
@@ -137,11 +142,18 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                       <span className="w-full border-t" />
                     </div>
                     <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+                      <span className="bg-background px-2 text-muted-foreground">
+                        Or continue with
+                      </span>
                     </div>
                   </div>
 
-                  <Button variant="outline" className="w-full flex gap-2 items-center" onClick={handleGoogleSignIn} disabled={isSubmitting}>
+                  <Button
+                    variant="outline"
+                    className="w-full flex gap-2 items-center"
+                    onClick={handleGoogleSignIn}
+                    disabled={isSubmitting}
+                  >
                     <svg className="w-4 h-4" viewBox="0 0 24 24">
                       <path
                         fill="currentColor"
@@ -184,7 +196,14 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                     <p className="font-medium">{user.displayName || 'Settings Synced'}</p>
                     <p className="text-sm text-muted-foreground">{user.email}</p>
                   </div>
-                  <Button variant="outline" className="w-full" onClick={() => { signOut(auth); onClose(); }}>
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => {
+                      signOut(auth);
+                      onClose();
+                    }}
+                  >
                     <LogOut className="w-4 h-4 mr-2" />
                     Sign Out
                   </Button>

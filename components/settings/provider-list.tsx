@@ -36,7 +36,10 @@ export function ProviderList({
   };
 
   return (
-    <div className="flex-shrink-0 bg-background flex max-md:flex-row md:flex-col max-md:!w-full max-md:border-b border-border max-md:overflow-x-auto" style={{ width: width ?? 192 }}>
+    <div
+      className="flex-shrink-0 bg-background flex max-md:flex-row md:flex-col max-md:!w-full max-md:border-b border-border max-md:overflow-x-auto"
+      style={{ width: width ?? 192 }}
+    >
       <div className="flex flex-row md:flex-col flex-1 max-md:overflow-x-auto md:overflow-y-auto p-2 md:p-3 gap-2 md:gap-0 md:space-y-1.5 min-w-max md:min-w-0">
         {providers.map((provider) => (
           <button
@@ -75,7 +78,12 @@ export function ProviderList({
 
       {/* Add Provider Button */}
       <div className="p-2 md:p-3 border-l md:border-l-0 md:border-t flex-shrink-0 flex items-center justify-center">
-        <Button variant="outline" size="sm" className="w-full md:w-full max-md:w-max min-w-max gap-1.5" onClick={onAddProvider}>
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full md:w-full max-md:w-max min-w-max gap-1.5"
+          onClick={onAddProvider}
+        >
           <Plus className="h-3.5 w-3.5" />
           {t('settings.addProviderButton')}
         </Button>

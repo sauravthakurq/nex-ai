@@ -33,7 +33,9 @@ export function AgentConfigPanel() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">Agent Configuration</h2>
-          <p className="text-sm text-muted-foreground">Manage AI agents for classroom discussions</p>
+          <p className="text-sm text-muted-foreground">
+            Manage AI agents for classroom discussions
+          </p>
         </div>
         <Button size="sm" variant="outline">
           <PlusIcon className="w-4 h-4 mr-2" />
@@ -91,7 +93,9 @@ export function AgentConfigPanel() {
               <CardContent className="p-4 pt-0">
                 <div className="space-y-2">
                   <div>
-                    <p className="text-xs font-medium text-muted-foreground mb-1">Capability description</p>
+                    <p className="text-xs font-medium text-muted-foreground mb-1">
+                      Capability description
+                    </p>
                     <p className="text-sm line-clamp-2">{agent.persona}</p>
                   </div>
                   <div>

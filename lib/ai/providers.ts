@@ -705,7 +705,7 @@ export const PROVIDERS: Record<ProviderId, ProviderConfig> = {
     ],
   },
 
-      grok: {
+  grok: {
     id: 'grok',
     name: 'Grok',
     type: 'openai',
@@ -875,7 +875,7 @@ function getCompatThinkingBodyParams(
         return { thinking: { type: 'disabled' } };
       // Qwen / SiliconFlow use { enable_thinking: false }
       case 'qwen':
-      return { enable_thinking: false };
+        return { enable_thinking: false };
       default:
         return undefined;
     }
@@ -887,7 +887,7 @@ function getCompatThinkingBodyParams(
       case 'glm':
         return { thinking: { type: 'enabled' } };
       case 'qwen':
-      return { enable_thinking: true };
+        return { enable_thinking: true };
       default:
         return undefined;
     }

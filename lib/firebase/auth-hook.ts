@@ -30,7 +30,11 @@ export function useFirebaseAuth() {
           // If document doesn't exist but user logged in, create one with current store settings
           const currentStore = useSettingsStore.getState();
           // Filter out function methods from SettingsState
-          const { setLanguage: _l, setTheme: _t, ...serializableStore } = currentStore as unknown as { [key: string]: unknown };
+          const {
+            setLanguage: _l,
+            setTheme: _t,
+            ...serializableStore
+          } = currentStore as unknown as { [key: string]: unknown };
           const cleanStore = JSON.parse(JSON.stringify(serializableStore));
           await setDoc(docRef, cleanStore, { merge: true });
         }

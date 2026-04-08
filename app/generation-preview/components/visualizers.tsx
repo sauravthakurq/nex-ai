@@ -13,6 +13,7 @@ import {
   MessageSquare,
   Focus,
   Play,
+  Sparkles,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { SceneOutline } from '@/lib/types/generation';
@@ -298,26 +299,56 @@ function StreamingOutlineVisualizer({ outlines }: { outlines: SceneOutline[] }) 
 // Content: Cycles through distinct representations of Slides, Quiz, PBL, Interactive
 function AgentGenerationVisualizer() {
   return (
-    <div className="w-60 h-40 mx-auto flex items-center justify-center">
-      <div className="flex gap-3">
-        {[0, 1, 2].map((i) => (
+    <div className="w-60 h-40 mx-auto flex flex-col items-center justify-center gap-4">
+      <div className="relative flex items-center justify-center w-full h-24">
+        {/* Left Card */}
+        <motion.div
+          className="absolute w-14 h-20 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-md flex items-center justify-center z-0 origin-bottom-right"
+          animate={{ x: -25, y: 15, rotateZ: -15 }}
+          initial={{ x: 0, y: 0, rotateZ: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+        />
+        
+        {/* Right Card */}
+        <motion.div
+          className="absolute w-14 h-20 rounded-lg bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-md flex items-center justify-center z-0 origin-bottom-left"
+          animate={{ x: 25, y: 15, rotateZ: 15 }}
+          initial={{ x: 0, y: 0, rotateZ: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+        />
+        
+        {/* Center Card with Glow */}
+        <motion.div
+          className="absolute w-16 h-24 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 shadow-xl flex items-center justify-center z-10"
+          initial={{ y: 20 }}
+          animate={{ y: -5 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        >
+          {/* Glowing backdrop */}
           <motion.div
-            key={i}
-            className="w-14 h-20 rounded-lg bg-gradient-to-br from-purple-400 to-blue-500 dark:from-purple-600 dark:to-blue-700 shadow-lg"
-            animate={{ y: [0, -8, 0], rotateZ: [0, 3, -3, 0] }}
-            transition={{
-              duration: 1.5,
-              repeat: Infinity,
-              delay: i * 0.3,
-              ease: 'easeInOut',
-            }}
+            className="absolute inset-0 rounded-lg bg-blue-500/20 blur-md pointer-events-none"
+            animate={{ opacity: [0.3, 0.8, 0.3] }}
+            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+          />
+          {/* Sparkles icon */}
+          <motion.div
+            animate={{ scale: [1, 1.15, 1], opacity: [0.7, 1, 0.7] }}
+            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
           >
-            <div className="w-full h-full flex items-center justify-center text-white/80 text-lg font-bold">
-              ?
-            </div>
+            <Sparkles className="w-6 h-6 text-blue-500 dark:text-blue-400 drop-shadow-sm" />
           </motion.div>
-        ))}
+        </motion.div>
       </div>
+      
+      {/* "Saurav AI in action..." text */}
+      <motion.div 
+        className="text-sm font-semibold tracking-wide text-gray-700 dark:text-gray-300 z-20"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: [0.4, 1, 0.4] }}
+        transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
+      >
+        Saurav AI in action...
+      </motion.div>
     </div>
   );
 }

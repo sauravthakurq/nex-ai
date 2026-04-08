@@ -53,8 +53,8 @@ export function SpeechButton({
   };
 
   const isMd = size === 'md';
-  const sizeClasses = isMd ? 'h-[34px] w-[34px]' : 'h-8 w-8';
-  const iconSize = isMd ? 'w-4 h-4' : 'w-3.5 h-3.5';
+  const sizeClasses = isMd ? 'w-11 h-11' : 'h-8 w-8';
+  const iconSize = isMd ? 'w-[18px] h-[18px]' : 'w-3.5 h-3.5';
   const barH = isMd ? 14 : 10;
 
   return (
@@ -69,7 +69,7 @@ export function SpeechButton({
             sizeClasses,
             active
               ? 'bg-violet-500/90 dark:bg-violet-600/80 text-white shadow-[0_0_12px_rgba(139,92,246,0.45)] dark:shadow-[0_0_12px_rgba(139,92,246,0.3)]'
-              : 'border border-black/10 dark:border-white/10 bg-white/60 dark:bg-black/40 text-black/70 dark:text-white/70 hover:bg-black/5 hover:text-black dark:hover:bg-white/10 dark:hover:text-white hover:shadow-md',
+              : 'bg-white dark:bg-[#2c2c2e] border border-black/[0.04] dark:border-white/5 text-black dark:text-white hover:bg-gray-50 dark:hover:bg-[#3a3a3c] shadow-[0_2px_10px_rgba(0,0,0,0.03)]',
             disabled && 'opacity-40 pointer-events-none',
             className,
           )}
@@ -102,7 +102,7 @@ export function SpeechButton({
               ))}
             </span>
           ) : (
-            <Mic className={cn(iconSize, 'relative z-10')} />
+            <Mic strokeWidth={1.5} className={cn(iconSize, 'relative z-10')} />
           )}
 
           {/* Injected keyframes */}

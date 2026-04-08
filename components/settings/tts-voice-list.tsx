@@ -68,7 +68,9 @@ export function TTSVoiceList() {
   return (
     <div className="space-y-4 pt-4 border-t border-border/40">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium">{t('settings.availableVoices') || 'Available Voices'}</h3>
+        <h3 className="text-sm font-medium">
+          {t('settings.availableVoices') || 'Available Voices'}
+        </h3>
         <p className="text-xs text-muted-foreground">{localizedVoices.length} voices</p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-96 overflow-y-auto pr-2 pb-2">
@@ -79,19 +81,28 @@ export function TTSVoiceList() {
               key={v.id}
               onClick={() => setTTSVoice(v.id)}
               className={cn(
-                "relative flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer group",
-                isSelected 
-                  ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/20" 
-                  : "border-border hover:border-emerald-500/50 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/10"
+                'relative flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer group',
+                isSelected
+                  ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/20'
+                  : 'border-border hover:border-emerald-500/50 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/10',
               )}
             >
               <div className="flex flex-col gap-1 pr-10">
-                <span className={cn("text-sm font-medium leading-none", isSelected ? "text-emerald-700 dark:text-emerald-400" : "text-foreground")}>{v.displayName || v.name}</span>
-                {v.language && <span className="text-xs text-muted-foreground mt-1">{v.language}</span>}
+                <span
+                  className={cn(
+                    'text-sm font-medium leading-none',
+                    isSelected ? 'text-emerald-700 dark:text-emerald-400' : 'text-foreground',
+                  )}
+                >
+                  {v.displayName || v.name}
+                </span>
+                {v.language && (
+                  <span className="text-xs text-muted-foreground mt-1">{v.language}</span>
+                )}
               </div>
-              
+
               <div className="absolute right-3 flex items-center gap-2">
-                 <button
+                <button
                   onClick={(e) => {
                     e.stopPropagation();
                     handlePreview(v.id);

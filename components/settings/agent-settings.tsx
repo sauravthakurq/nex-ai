@@ -7,18 +7,17 @@ import { AlertCircle, User, Users, Sparkles, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/lib/hooks/use-i18n';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import type { AgentConfig } from '@/lib/orchestration/registry/types';
+import { useAgentRegistry } from '@/lib/orchestration/registry/store';
+import { useSettingsStore } from '@/lib/store/settings';
+import { getTTSVoices } from '@/lib/audio/constants';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import azureVoicesData from '@/lib/audio/azure.json';
 
-interface Agent {
-  id: string;
-  name: string;
-  avatar: string;
-  role: string;
-  priority: number;
-  allowedActions: string[];
-}
+
 
 interface AgentSettingsProps {
-  agents: Agent[];
+  agents: AgentConfig[];
   selectedAgentIds: string[];
   maxTurns: string;
   agentMode: 'preset' | 'auto';
@@ -38,13 +37,13 @@ export function AgentSettings({
 }: AgentSettingsProps) {
   const { t } = useI18n();
 
-  const getAgentName = (agent: Agent) => {
+  const getAgentName = (agent: AgentConfig) => {
     const key = `settings.agentNames.${agent.id}`;
     const translated = t(key);
     return translated !== key ? translated : agent.name;
   };
 
-  const getAgentRole = (agent: Agent) => {
+  const getAgentRole = (agent: AgentConfig) => {
     const key = `settings.agentRoles.${agent.role}`;
     const translated = t(key);
     return translated !== key ? translated : agent.role;
@@ -84,48 +83,75 @@ export function AgentSettings({
         </div>
 
         {agentMode === 'preset' ? (
-          <>
+                              <>
             {/* Preset mode: existing agent multi-select */}
             <div className="space-y-2">
-              <Label>{t('settings.selectAgents')}</Label>
-              <p className="text-sm text-muted-foreground">{t('settings.agentSettingsDesc')}</p>
+              <Label>{t('settings.selectAgents') || 'Configure Characters'}</Label>
+              <p className="text-sm text-muted-foreground">{t('settings.agentSettingsDesc') || 'Configure each character\'s name and voice. Check to enable them.'}</p>
             </div>
 
-            <div className="space-y-2 border rounded-lg p-2 bg-muted/30">
-              {agents.map((agent) => (
-                <div
-                  key={agent.id}
-                  className={cn(
-                    'flex items-center space-x-3 p-3 rounded-lg border transition-all cursor-pointer',
-                    selectedAgentIds.includes(agent.id)
-                      ? 'bg-primary/10 border-primary/50 shadow-sm'
-                      : 'bg-background hover:bg-muted/50 border-transparent',
-                  )}
-                  onClick={() => onToggleAgent(agent.id)}
-                >
-                  <Checkbox
-                    id={`agent-${agent.id}`}
-                    checked={selectedAgentIds.includes(agent.id)}
-                    onCheckedChange={() => onToggleAgent(agent.id)}
-                    disabled={agent.role === 'teacher'}
-                  />
-                  <Avatar className="size-10">
-                    <AvatarImage src={agent.avatar} alt={getAgentName(agent)} />
-                    <AvatarFallback>{getAgentName(agent).charAt(0)}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <div className="font-medium text-sm flex items-center gap-1.5">
-                      {getAgentName(agent)}
-                      {agent.role === 'teacher' && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 leading-none">
-                          {t('settings.required')}
-                        </span>
-                      )}
+            <div className="space-y-3 border rounded-lg p-2 bg-muted/30">
+              {agents.map((agent) => {
+                const isSelected = selectedAgentIds.includes(agent.id);
+                const ttsProviderId = useSettingsStore.getState()?.ttsProviderId || 'openai-tts';
+                const voices = ttsProviderId === 'azure-tts' 
+                  ? azureVoicesData.voices.map(v => ({ id: v.ShortName, name: v.LocalName }))
+                  : getTTSVoices(ttsProviderId);
+
+                return (
+                  <div
+                    key={agent.id}
+                    className={cn(
+                      'flex flex-col space-y-3 sm:space-y-0 sm:flex-row sm:items-center sm:space-x-3 p-3 rounded-lg border transition-all',
+                      isSelected ? 'bg-primary/5 border-primary/50' : 'bg-background hover:bg-muted/50 border-transparent'
+                    )}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <Checkbox
+                        id={`agent-${agent.id}`}
+                        checked={isSelected}
+                        onCheckedChange={() => onToggleAgent(agent.id)}
+                        disabled={agent.role === 'teacher'}
+                      />
+                      <Avatar className="size-10 shrink-0">
+                        <AvatarImage src={agent.avatar} alt={getAgentName(agent)} />
+                        <AvatarFallback>{getAgentName(agent).charAt(0)}</AvatarFallback>
+                      </Avatar>
                     </div>
-                    <div className="text-xs text-muted-foreground">{getAgentRole(agent)}</div>
+                    
+                    <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3 min-w-0">
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground ml-1">Name</Label>
+                        <div className="flex items-center gap-1.5">
+                          <Input 
+                            value={agent.name} 
+                            onChange={(e) => useAgentRegistry.getState().updateAgent(agent.id, { name: e.target.value })}
+                            className="h-8 text-sm"
+                            placeholder={getAgentName(agent)}
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground ml-1">Voice</Label>
+                        <Select 
+                          value={agent.voiceConfig?.voiceId || voices[0]?.id} 
+                          onValueChange={(val) => useAgentRegistry.getState().updateAgent(agent.id, { voiceConfig: { providerId: ttsProviderId, voiceId: val }})}
+                        >
+                          <SelectTrigger className="h-8 text-sm">
+                            <SelectValue placeholder="Select voice" />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-[200px]">
+                            {voices.map(v => (
+                              <SelectItem key={v.id} value={v.id}>{v.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Mode indicator */}

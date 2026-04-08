@@ -1,7 +1,16 @@
 'use client';
 
 import { useState, useRef, useMemo } from 'react';
-import { Bot, Check, ChevronLeft, Paperclip, FileText, X, Globe2 } from 'lucide-react';
+import {
+  Bot,
+  BrainCircuit,
+  Check,
+  ChevronLeft,
+  Paperclip,
+  FileText,
+  X,
+  Globe2,
+} from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   Select,
@@ -109,12 +118,12 @@ export function GenerationToolbar({
 
   // ─── Pill button helper ─────────────────────────────
   const pillCls =
-      'inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] tracking-tight font-medium transition-all duration-300 cursor-pointer select-none whitespace-nowrap shadow-sm backdrop-blur-md active:scale-95';
+    'inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] tracking-tight font-medium transition-all duration-300 cursor-pointer select-none whitespace-nowrap shadow-sm backdrop-blur-md active:scale-95';
   const pillMuted = `${pillCls} border border-black/10 dark:border-white/10 bg-white/60 dark:bg-black/40 text-black/70 dark:text-white/70 hover:bg-black/5 hover:text-black dark:hover:bg-white/10 dark:hover:text-white hover:shadow-md`;
   const pillActive = `${pillCls} border border-black/20 dark:border-white/20 bg-black text-white dark:bg-white dark:text-black shadow-md hover:shadow-lg`;
 
   return (
-    <div className="flex items-center gap-1 flex-wrap">
+    <div className="flex items-center gap-1 overflow-x-auto no-scrollbar max-w-full whitespace-nowrap">
       {/* ── Model selector ── */}
       {configuredProviders.length > 0 ? (
         <ModelSelectorPopover
@@ -171,7 +180,10 @@ export function GenerationToolbar({
             </button>
           )}
         </PopoverTrigger>
-        <PopoverContent align="start" className="w-[calc(100vw-2rem)] sm:w-72 p-0 max-h-[80vh] overflow-y-auto overflow-x-hidden">
+        <PopoverContent
+          align="start"
+          className="w-[calc(100vw-2rem)] sm:w-72 p-0 max-h-[80vh] overflow-y-auto overflow-x-hidden"
+        >
           {/* Parser selector */}
           <div className="flex items-center gap-2 px-3 pt-3 pb-2">
             <span className="text-xs font-medium text-muted-foreground shrink-0">
@@ -282,7 +294,10 @@ export function GenerationToolbar({
               )}
             </button>
           </PopoverTrigger>
-          <PopoverContent align="start" className="w-[calc(100vw-2rem)] sm:w-64 p-3 space-y-3 max-h-[80vh] overflow-y-auto overflow-x-hidden">
+          <PopoverContent
+            align="start"
+            className="w-[calc(100vw-2rem)] sm:w-64 p-3 space-y-3 max-h-[80vh] overflow-y-auto overflow-x-hidden"
+          >
             {/* Toggle */}
             <button
               onClick={() => onWebSearchChange(!webSearch)}
@@ -349,7 +364,13 @@ export function GenerationToolbar({
       ) : (
         <Tooltip>
           <TooltipTrigger asChild>
-            <button className={cn(pillCls, 'text-black/40 border-black/50 dark:text-white/40 dark:border-white/50 cursor-not-allowed')} disabled>
+            <button
+              className={cn(
+                pillCls,
+                'text-black/40 border-black/50 dark:text-white/40 dark:border-white/50 cursor-not-allowed',
+              )}
+              disabled
+            >
               <Globe2 className="size-3.5" />
             </button>
           </TooltipTrigger>
@@ -409,21 +430,26 @@ function ModelSelectorPopover({
           <PopoverTrigger asChild>
             <button
               className={cn(
-                'inline-flex items-center justify-center size-[34px] rounded-full transition-all duration-300 cursor-pointer select-none shadow-sm backdrop-blur-md active:scale-95',
-                'border border-black/10 dark:border-white/10 bg-white/60 dark:bg-black/40 hover:bg-black/5 dark:hover:bg-white/10 hover:shadow-md',
+                'flex items-center justify-center gap-2 px-5 py-2.5 sm:py-2 rounded-full bg-gray-50 dark:bg-[#1e1e1e] hover:bg-gray-100 dark:hover:bg-[#2a2a2a] border border-gray-200/50 dark:border-white/5 shadow-sm text-black dark:text-white text-[14px] sm:text-[13.5px] font-medium transition-all duration-300 active:scale-[0.97] w-full sm:w-auto',
                 currentModelId &&
-                  'border-violet-500/30 bg-violet-500/10 dark:bg-violet-500/20 shadow-violet-500/20 text-violet-700 dark:text-violet-300',
+                  'text-violet-700 dark:text-violet-300 border-violet-500/30 bg-violet-500/10 dark:bg-violet-500/20',
               )}
             >
               {currentProviderConfig?.icon ? (
-                <img
+                <img 
                   src={currentProviderConfig.icon}
                   alt={currentProviderConfig.name}
-                  className="size-4 rounded-sm"
+                  className="size-4 rounded-sm shrink-0"
                 />
               ) : (
-                <Bot className="size-3.5 text-black dark:text-white" />
+                <BrainCircuit
+                  strokeWidth={1.5}
+                  className="w-4 h-4 text-black dark:text-white shrink-0"
+                />
               )}
+              <span className="truncate">
+                {currentModelId ? currentModelId : 'Choose AI model'}
+              </span>
             </button>
           </PopoverTrigger>
         </TooltipTrigger>
@@ -434,7 +460,10 @@ function ModelSelectorPopover({
         </TooltipContent>
       </Tooltip>
 
-      <PopoverContent align="start" className="w-[calc(100vw-2rem)] sm:w-64 p-0 max-h-[80vh] overflow-y-auto overflow-x-hidden">
+      <PopoverContent
+        align="start"
+        className="w-[calc(100vw-2rem)] sm:w-64 p-0 max-h-[80vh] overflow-y-auto overflow-x-hidden"
+      >
         {/* Level 1: Provider list */}
         {!drillProvider && (
           <div className="max-h-72 overflow-y-auto">

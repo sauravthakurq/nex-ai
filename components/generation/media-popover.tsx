@@ -326,23 +326,16 @@ export function MediaPopover({ onSettingsOpen }: MediaPopoverProps) {
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
-        <button
-          className={cn(
-            'inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] tracking-tight font-medium transition-all duration-300 cursor-pointer select-none whitespace-nowrap shadow-sm backdrop-blur-md active:scale-95',
-            enabledCount > 0
-              ? 'border-transparent bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-md hover:shadow-lg hover:-translate-y-[1px]'
-              : 'border border-black/10 dark:border-white/10 bg-white/60 dark:bg-black/40 text-black/70 dark:text-white/70 hover:bg-black/5 hover:text-black dark:hover:bg-white/10 dark:hover:text-white hover:shadow-md',
-          )}
-        >
-          <SlidersHorizontal className="size-3.5" />
-          {imageGenerationEnabled && <ImageIcon className="size-3.5" />}
-          {videoGenerationEnabled && <Video className="size-3.5" />}
-          {ttsEnabled && <Volume2 className="size-3.5" />}
-          {asrEnabled && <Mic className="size-3.5" />}
+        <button className="flex-1 sm:flex-none w-auto sm:w-9 h-9 flex items-center justify-center rounded-full bg-[#1d1d1f] dark:bg-white hover:bg-black dark:hover:bg-gray-200 text-white dark:text-black transition-all duration-300 active:scale-[0.94] shadow-md ml-0.5 px-6 sm:px-0">
+          <SlidersHorizontal strokeWidth={1.5} className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
         </button>
       </PopoverTrigger>
 
-      <PopoverContent align="start" side="bottom" className="w-[calc(100vw-2rem)] sm:w-80 p-0 max-h-[80vh] overflow-y-auto overflow-x-hidden">
+      <PopoverContent
+        align="end"
+        side="top"
+        className="w-[calc(100vw-2rem)] sm:w-80 p-0 max-h-[80vh] overflow-y-auto overflow-x-hidden mb-2"
+      >
         {/* ── Tab bar (segmented control) ── */}
         <div className="p-2 pb-0">
           <div className="flex gap-0.5 p-0.5 bg-muted/60 rounded-lg">

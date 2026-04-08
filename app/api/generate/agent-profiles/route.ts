@@ -107,6 +107,8 @@ ${sceneSummary ? `\nScene outlines:\n${sceneSummary}\n` : ''}
 Requirements:
 - Decide the appropriate number of agents based on the course content (typically 3-5)
 - Exactly 1 agent must have role "teacher", the rest can be "assistant" or "student"
+- Assign a relevant famous expert name based on the course topic for the "teacher" agent (e.g., Albert Einstein for Relativity, Isaac Newton for Classical Mechanics, Socrates for Philosophy, etc.)
+- The teacher explanation style, tone, or behavior should be a normal AI explanation (no roleplay, do not speak as the scientist)
 - Priority values: teacher=10 (highest), assistant=7, student=4-6
 - Each agent needs: name, role, persona (2-3 sentences describing personality and teaching/learning style)
 - Names and personas must be in language: ${language}

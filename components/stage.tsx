@@ -95,7 +95,6 @@ export function Stage({
   const [isBottomSheetExpanded, setIsBottomSheetExpanded] = useState(false);
   const [bottomSheetHeight, setBottomSheetHeight] = useState(250);
 
-
   // Active bubble ID for playback highlight in chat area (Issue 8)
   const [activeBubbleId, setActiveBubbleId] = useState<string | null>(null);
 
@@ -944,7 +943,8 @@ export function Stage({
   // Calculate scene viewer height (subtract Header's 80px height)
   const sceneViewerHeight = (() => {
     const headerHeight = isPresenting ? 0 : 80; // Header h-20 = 80px
-    const roundtableHeight = mode === 'playback' && !isPresenting && isBottomSheetExpanded ? bottomSheetHeight : 0;
+    const roundtableHeight =
+      mode === 'playback' && !isPresenting && isBottomSheetExpanded ? bottomSheetHeight : 0;
     return `calc(100% - ${headerHeight + roundtableHeight}px)`;
   })();
 
@@ -1019,20 +1019,35 @@ export function Stage({
         {/* Ask AI Pill (Visible when collapsed) */}
         {!isBottomSheetExpanded && mode === 'playback' && !isPresenting && (
           <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50">
-            <button 
+            <button
               onClick={() => setIsBottomSheetExpanded(true)}
               className="flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-white/70 dark:bg-black/60 backdrop-blur-2xl border border-white/50 dark:border-white/10 shadow-[0_8px_32px_0rgba(0,0,0,0.1)] dark:shadow-[0_8px_32px_0rgba(0,0,0,0.5)] hover:bg-white/90 dark:hover:bg-black/80 transition-all active:scale-95 outline-none"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
-              <span className="font-medium text-sm text-gray-800 dark:text-gray-200 whitespace-nowrap">Ask AI</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-gray-800 dark:text-gray-200"
+              >
+                <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+              </svg>
+              <span className="font-medium text-sm text-gray-800 dark:text-gray-200 whitespace-nowrap">
+                Ask AI
+              </span>
             </button>
           </div>
         )}
 
         {/* Backdrop for mobile */}
         {isBottomSheetExpanded && mode === 'playback' && !isPresenting && (
-          <div 
-            className="fixed inset-0 z-10 md:hidden bg-transparent" 
+          <div
+            className="fixed inset-0 z-10 md:hidden bg-transparent"
             onClick={() => setIsBottomSheetExpanded(false)}
           />
         )}
@@ -1040,164 +1055,194 @@ export function Stage({
         {/* Roundtable Area */}
         {mode === 'playback' && (
           <div
-            style={!isPresenting ? { height: isBottomSheetExpanded ? bottomSheetHeight : 0, overflow: isBottomSheetExpanded ? 'clip' : 'hidden', paddingBottom: typeof window !== 'undefined' && window.visualViewport ? Math.max(0, window.innerHeight - window.visualViewport.height) : 0 } : {}}
+            style={
+              !isPresenting
+                ? {
+                    height: isBottomSheetExpanded ? bottomSheetHeight : 0,
+                    overflow: isBottomSheetExpanded ? 'clip' : 'hidden',
+                    paddingBottom:
+                      typeof window !== 'undefined' && window.visualViewport
+                        ? Math.max(0, window.innerHeight - window.visualViewport.height)
+                        : 0,
+                  }
+                : {}
+            }
             className={cn(
               'transition-[height,padding,transform,background-color] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] relative z-20 flex flex-col bg-white dark:bg-gray-900 rounded-t-[2rem] border-t border-white/20 dark:border-white/10 shadow-[0_-20px_40px_-15px_rgba(0,0,0,0.05)] dark:shadow-[0_-20px_40px_-15px_rgba(0,0,0,0.3)] will-change-[height]',
               !isPresenting && 'shrink-0',
-              isPresenting && 'absolute inset-x-0 bottom-0 z-20 bg-transparent shadow-none border-none backdrop-blur-none',
+              isPresenting &&
+                'absolute inset-x-0 bottom-0 z-20 bg-transparent shadow-none border-none backdrop-blur-none',
             )}
           >
             {/* Drag Handle */}
             {!isPresenting && isBottomSheetExpanded && (
-              <div 
+              <div
                 onPointerDown={startResize}
                 className="w-full flex justify-center py-3 cursor-ns-resize shrink-0 touch-none z-[100] hover:bg-gray-500/5 active:bg-gray-500/10 transition-colors absolute top-0 left-0"
               >
                 <div className="w-12 h-1.5 bg-gray-400/50 dark:bg-gray-500/50 rounded-full" />
               </div>
             )}
-            
+
             {/* Close button for expanded state */}
             {!isPresenting && isBottomSheetExpanded && (
-              <button 
+              <button
                 onClick={() => setIsBottomSheetExpanded(false)}
                 className="absolute top-2 right-4 z-[100] p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-full hover:bg-white/10"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
               </button>
             )}
 
             {/* Inner Content (Roundtable) shifted down if handle is present */}
-            <div className={cn("flex-1 w-full h-full min-h-0 flex flex-col relative overflow-hidden", !isPresenting && isBottomSheetExpanded ? "pt-8" : "")}>
+            <div
+              className={cn(
+                'flex-1 w-full h-full min-h-0 flex flex-col relative overflow-hidden',
+                !isPresenting && isBottomSheetExpanded ? 'pt-8' : '',
+              )}
+            >
               <Roundtable
-              mode={mode}
-              initialParticipants={participants}
-              playbackView={playbackView}
-              currentSpeech={liveSpeech}
-              lectureSpeech={lectureSpeech}
-              idleText={firstSpeechText}
-              playbackCompleted={playbackCompleted}
-              discussionRequest={discussionRequest}
-              engineMode={engineMode}
-              isStreaming={chatIsStreaming}
-              audioIndicatorState={audioIndicatorState}
-              audioAgentId={audioAgentId}
-              sessionType={
-                chatSessionType === 'qa'
-                  ? 'qa'
-                  : chatSessionType === 'discussion'
-                    ? 'discussion'
-                    : undefined
-              }
-              speakingAgentId={speakingAgentId}
-              speechProgress={speechProgress}
-              showEndFlash={showEndFlash}
-              endFlashSessionType={endFlashSessionType}
-              thinkingState={thinkingState}
-              isCueUser={isCueUser}
-              isTopicPending={isTopicPending}
-              onMessageSend={async (msg) => {
-                // Always clear Level-1 pause state — the closure may hold a stale
-                // isDiscussionPaused value (e.g. voice input's onTranscription callback
-                // captures onMessageSend before React re-renders with the updated state).
-                setIsDiscussionPaused(false);
-                // Clear the sticky livePausedRef so the next agent-loop buffer
-                // starts unpaused. (pauseActiveLiveBuffer sets a ref that new
-                // buffers inherit — must be cleared before sendMessage creates one.)
-                chatAreaRef.current?.resumeActiveLiveBuffer();
-                // Flush any buffered / in-flight TTS audio from the previous
-                // agent turn so it doesn't leak into the next round.
-                discussionTTS.cleanup();
-                // Clear soft-paused state — user is continuing the topic
-                if (isTopicPending) {
-                  setIsTopicPending(false);
-                  setLiveSpeech(null);
-                  setSpeakingAgentId(null);
+                mode={mode}
+                initialParticipants={participants}
+                playbackView={playbackView}
+                currentSpeech={liveSpeech}
+                lectureSpeech={lectureSpeech}
+                idleText={firstSpeechText}
+                playbackCompleted={playbackCompleted}
+                discussionRequest={discussionRequest}
+                engineMode={engineMode}
+                isStreaming={chatIsStreaming}
+                audioIndicatorState={audioIndicatorState}
+                audioAgentId={audioAgentId}
+                sessionType={
+                  chatSessionType === 'qa'
+                    ? 'qa'
+                    : chatSessionType === 'discussion'
+                      ? 'discussion'
+                      : undefined
                 }
-                // User interrupts during playback — handleUserInterrupt triggers
-                // onUserInterrupt callback which already calls sendMessage, so skip
-                // the direct sendMessage below to avoid sending twice.
-                // Include 'paused' because onInputActivate pauses the engine before
-                // the user finishes typing — without this the interrupt position
-                // would never be saved and resuming after QA skips to the next sentence.
-                if (
-                  engineRef.current &&
-                  (engineMode === 'playing' || engineMode === 'live' || engineMode === 'paused')
-                ) {
-                  engineRef.current.handleUserInterrupt(msg);
-                } else {
-                  chatAreaRef.current?.sendMessage(msg);
-                }
-                // Auto-switch to chat tab when user sends a message
-                chatAreaRef.current?.switchToTab('chat');
-                setIsCueUser(false);
-                // Immediately mark streaming for synchronized stop button
-                setChatIsStreaming(true);
-                setChatSessionType(chatSessionType || 'qa');
-                // Optimistic thinking: show thinking dots immediately so there's
-                // no blank gap between userMessage expiry and the SSE thinking event.
-                // The real SSE event will overwrite this with the same or updated value.
-                setThinkingState({ stage: 'director' });
-              }}
-              onDiscussionStart={() => {
-                // User clicks "Join" on ProactiveCard
-                engineRef.current?.confirmDiscussion();
-              }}
-              onDiscussionSkip={() => {
-                // User clicks "Skip" on ProactiveCard
-                engineRef.current?.skipDiscussion();
-              }}
-              onStopDiscussion={handleStopDiscussion}
-              onInputActivate={() => {
-                // Level-1 pause: freeze buffer tick + TTS audio while SSE keeps buffering.
-                // User resumes manually via Space / pause button after closing the input.
-                // No isDiscussionPaused guard — always attempt to pause the buffer.
-                // The return value ensures UI state stays in sync with buffer state.
-                if (chatSessionType === 'qa' || chatSessionType === 'discussion') {
+                speakingAgentId={speakingAgentId}
+                speechProgress={speechProgress}
+                showEndFlash={showEndFlash}
+                endFlashSessionType={endFlashSessionType}
+                thinkingState={thinkingState}
+                isCueUser={isCueUser}
+                isTopicPending={isTopicPending}
+                onMessageSend={async (msg) => {
+                  // Always clear Level-1 pause state — the closure may hold a stale
+                  // isDiscussionPaused value (e.g. voice input's onTranscription callback
+                  // captures onMessageSend before React re-renders with the updated state).
+                  setIsDiscussionPaused(false);
+                  // Clear the sticky livePausedRef so the next agent-loop buffer
+                  // starts unpaused. (pauseActiveLiveBuffer sets a ref that new
+                  // buffers inherit — must be cleared before sendMessage creates one.)
+                  chatAreaRef.current?.resumeActiveLiveBuffer();
+                  // Flush any buffered / in-flight TTS audio from the previous
+                  // agent turn so it doesn't leak into the next round.
+                  discussionTTS.cleanup();
+                  // Clear soft-paused state — user is continuing the topic
+                  if (isTopicPending) {
+                    setIsTopicPending(false);
+                    setLiveSpeech(null);
+                    setSpeakingAgentId(null);
+                  }
+                  // User interrupts during playback — handleUserInterrupt triggers
+                  // onUserInterrupt callback which already calls sendMessage, so skip
+                  // the direct sendMessage below to avoid sending twice.
+                  // Include 'paused' because onInputActivate pauses the engine before
+                  // the user finishes typing — without this the interrupt position
+                  // would never be saved and resuming after QA skips to the next sentence.
+                  if (
+                    engineRef.current &&
+                    (engineMode === 'playing' || engineMode === 'live' || engineMode === 'paused')
+                  ) {
+                    engineRef.current.handleUserInterrupt(msg);
+                  } else {
+                    chatAreaRef.current?.sendMessage(msg);
+                  }
+                  // Auto-switch to chat tab when user sends a message
+                  chatAreaRef.current?.switchToTab('chat');
+                  setIsCueUser(false);
+                  // Immediately mark streaming for synchronized stop button
+                  setChatIsStreaming(true);
+                  setChatSessionType(chatSessionType || 'qa');
+                  // Optimistic thinking: show thinking dots immediately so there's
+                  // no blank gap between userMessage expiry and the SSE thinking event.
+                  // The real SSE event will overwrite this with the same or updated value.
+                  setThinkingState({ stage: 'director' });
+                }}
+                onDiscussionStart={() => {
+                  // User clicks "Join" on ProactiveCard
+                  engineRef.current?.confirmDiscussion();
+                }}
+                onDiscussionSkip={() => {
+                  // User clicks "Skip" on ProactiveCard
+                  engineRef.current?.skipDiscussion();
+                }}
+                onStopDiscussion={handleStopDiscussion}
+                onInputActivate={() => {
+                  // Level-1 pause: freeze buffer tick + TTS audio while SSE keeps buffering.
+                  // User resumes manually via Space / pause button after closing the input.
+                  // No isDiscussionPaused guard — always attempt to pause the buffer.
+                  // The return value ensures UI state stays in sync with buffer state.
+                  if (chatSessionType === 'qa' || chatSessionType === 'discussion') {
+                    const paused = chatAreaRef.current?.pauseActiveLiveBuffer();
+                    if (paused) {
+                      discussionTTS.pause();
+                      setIsDiscussionPaused(true);
+                    }
+                  }
+                  // Also pause playback engine
+                  if (engineRef.current && (engineMode === 'playing' || engineMode === 'live')) {
+                    engineRef.current.pause();
+                  }
+                }}
+                onResumeTopic={doResumeTopic}
+                onPlayPause={handlePlayPause}
+                isDiscussionPaused={isDiscussionPaused}
+                onDiscussionPause={() => {
                   const paused = chatAreaRef.current?.pauseActiveLiveBuffer();
                   if (paused) {
                     discussionTTS.pause();
                     setIsDiscussionPaused(true);
                   }
-                }
-                // Also pause playback engine
-                if (engineRef.current && (engineMode === 'playing' || engineMode === 'live')) {
-                  engineRef.current.pause();
-                }
-              }}
-              onResumeTopic={doResumeTopic}
-              onPlayPause={handlePlayPause}
-              isDiscussionPaused={isDiscussionPaused}
-              onDiscussionPause={() => {
-                const paused = chatAreaRef.current?.pauseActiveLiveBuffer();
-                if (paused) {
-                  discussionTTS.pause();
-                  setIsDiscussionPaused(true);
-                }
-              }}
-              onDiscussionResume={() => {
-                chatAreaRef.current?.resumeActiveLiveBuffer();
-                discussionTTS.resume();
-                setIsDiscussionPaused(false);
-              }}
-              totalActions={totalActions}
-              currentActionIndex={0}
-              currentSceneIndex={currentSceneIndex}
-              scenesCount={totalScenesCount}
-              whiteboardOpen={whiteboardOpen}
-              sidebarCollapsed={sidebarCollapsed}
-              chatCollapsed={chatAreaCollapsed}
-              onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}
-              onToggleChat={() => setChatAreaCollapsed(!chatAreaCollapsed)}
-              onPrevSlide={handlePreviousScene}
-              onNextSlide={handleNextScene}
-              onWhiteboardClose={handleWhiteboardToggle}
-              isPresenting={isPresenting}
-              controlsVisible={controlsVisible}
-              onTogglePresentation={togglePresentation}
-              onPresentationInteractionChange={setIsPresentationInteractionActive}
-              fullscreenContainerRef={stageRef}
-            />
+                }}
+                onDiscussionResume={() => {
+                  chatAreaRef.current?.resumeActiveLiveBuffer();
+                  discussionTTS.resume();
+                  setIsDiscussionPaused(false);
+                }}
+                totalActions={totalActions}
+                currentActionIndex={0}
+                currentSceneIndex={currentSceneIndex}
+                scenesCount={totalScenesCount}
+                whiteboardOpen={whiteboardOpen}
+                sidebarCollapsed={sidebarCollapsed}
+                chatCollapsed={chatAreaCollapsed}
+                onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}
+                onToggleChat={() => setChatAreaCollapsed(!chatAreaCollapsed)}
+                onPrevSlide={handlePreviousScene}
+                onNextSlide={handleNextScene}
+                onWhiteboardClose={handleWhiteboardToggle}
+                isPresenting={isPresenting}
+                controlsVisible={controlsVisible}
+                onTogglePresentation={togglePresentation}
+                onPresentationInteractionChange={setIsPresentationInteractionActive}
+                fullscreenContainerRef={stageRef}
+              />
             </div>
           </div>
         )}

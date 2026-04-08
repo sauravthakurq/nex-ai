@@ -82,7 +82,9 @@ export function useAudioRecorder(options: UseAudioRecorderOptions = {}) {
         onTranscription?.(result.text);
       } catch (error) {
         log.error('Transcription error:', error);
-        onError?.(error instanceof Error ? error.message : 'Speech recognition failed, please try again');
+        onError?.(
+          error instanceof Error ? error.message : 'Speech recognition failed, please try again',
+        );
       } finally {
         setIsProcessing(false);
         setRecordingTime(0);

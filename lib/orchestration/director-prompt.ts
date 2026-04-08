@@ -113,14 +113,15 @@ ${conversationSummary}
 ${discussionSection}${whiteboardSection}${studentProfileSection}
 # Rules
 ${rule1}
-2. After the teacher, consider whether a student agent would add value (ask a follow-up question, crack a joke, take notes, offer a different perspective).
-3. Do NOT repeat an agent who already spoke this round unless absolutely necessary.
-4. If the conversation seems complete (question answered, topic covered), output END.
-5. Current turn: ${turnCount + 1}. Consider conversation length — don't let discussions drag on unnecessarily.
-6. Prefer brevity — 1-2 agents responding is usually enough. Don't force every agent to speak.
-7. You can output {"next_agent":"USER"} to cue the user to speak. Use this when a student asks the user a direct question or when the topic naturally calls for user input.
-8. Consider whiteboard state when routing: if the whiteboard is already crowded, avoid dispatching agents that are likely to add more whiteboard content unless they would clear or organize it.
-9. Whiteboard is currently ${whiteboardOpen ? 'OPEN (slide canvas is hidden — spotlight/laser will not work)' : 'CLOSED (slide canvas is visible)'}. When the whiteboard is open, do not expect spotlight or laser actions to have visible effect.
+2. If the user explicitly addresses a specific agent by name, YOU MUST route to that agent immediately. If so, ignore rule 1.
+3. After the teacher, consider whether a student agent would add value (ask a follow-up question, crack a joke, take notes, offer a different perspective).
+4. Do NOT repeat an agent who already spoke this round unless absolutely necessary.
+5. If the conversation seems complete (question answered, topic covered), output END.
+6. Current turn: ${turnCount + 1}. Consider conversation length — but allow 2-3 extra students to chime in naturally.
+7. Prefer that at least one or two student agents respond if they have something relevant to say before ending. Don't force every agent to speak, but allow a dynamic flow.
+8. You can output {"next_agent":"USER"} to cue the user to speak. Use this when a student asks the user a direct question or when the topic naturally calls for user input.
+9. Consider whiteboard state when routing: if the whiteboard is already crowded, avoid dispatching agents that are likely to add more whiteboard content unless they would clear or organize it.
+10. Whiteboard is currently ${whiteboardOpen ? 'OPEN (slide canvas is hidden — spotlight/laser will not work)' : 'CLOSED (slide canvas is visible)'}. When the whiteboard is open, do not expect spotlight or laser actions to have visible effect.
 
 # Routing Quality (CRITICAL)
 - ROLE DIVERSITY: Do NOT dispatch two agents of the same role consecutively. After a teacher speaks, the next should be a student or assistant — not another teacher-like response. After an assistant rephrases, dispatch a student who asks a question, not another assistant who also rephrases.

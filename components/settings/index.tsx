@@ -29,10 +29,14 @@ import {
   Sun,
   Moon,
   Monitor,
+  Download,
+  Users,
 } from 'lucide-react';
+import { usePwa } from '@/components/pwa-manager';
 import { useI18n } from '@/lib/hooks/use-i18n';
 import { useTheme } from '@/lib/hooks/use-theme';
 import { useSettingsStore } from '@/lib/store/settings';
+import { useAgentRegistry } from '@/lib/orchestration/registry/store';
 import { toast } from 'sonner';
 import { type ProviderId } from '@/lib/ai/providers';
 import { PROVIDERS } from '@/lib/ai/providers';
@@ -59,6 +63,7 @@ import { WebSearchSettings } from './web-search-settings';
 import { WEB_SEARCH_PROVIDERS } from '@/lib/web-search/constants';
 import type { WebSearchProviderId } from '@/lib/web-search/types';
 import { GeneralSettings } from './general-settings';
+import { AgentSettings } from './agent-settings';
 import { ModelEditDialog } from './model-edit-dialog';
 import { AddProviderDialog, type NewProviderData } from './add-provider-dialog';
 import type { SettingsSection, EditingModel } from '@/lib/types/settings';
@@ -80,7 +85,10 @@ function ProviderListColumn<T extends string>({
   t: (key: string) => string;
 }) {
   return (
-    <div className="flex-shrink-0 bg-background flex max-md:flex-row md:flex-col max-md:!w-full max-md:overflow-x-auto max-md:border-b border-border" style={{ width }}>
+    <div
+      className="flex-shrink-0 bg-background flex max-md:flex-row md:flex-col max-md:!w-full max-md:overflow-x-auto max-md:border-b border-border"
+      style={{ width }}
+    >
       <div className="flex flex-row md:flex-col overflow-x-auto md:overflow-y-auto w-full md:w-auto flex-1 p-2 md:p-3 gap-2 md:gap-0 md:space-y-1.5">
         {providers.map((provider) => (
           <button
@@ -149,6 +157,8 @@ const IMAGE_PROVIDER_NAMES: Record<ImageProviderId, string> = {
   'nano-banana': 'providerNanoBanana',
   'minimax-image': 'providerMiniMaxImage',
   'grok-image': 'providerGrokImage',
+  'custom-image': 'providerCustomImage',
+  pollinations: 'providerPollinationsImage',
 };
 
 const IMAGE_PROVIDER_ICONS: Record<ImageProviderId, string> = {
@@ -157,6 +167,8 @@ const IMAGE_PROVIDER_ICONS: Record<ImageProviderId, string> = {
   'nano-banana': '/logos/gemini.svg',
   'minimax-image': '/logos/minimax.svg',
   'grok-image': '/logos/grok.svg',
+  'custom-image': '', // No specific fallback icon for Custom
+  pollinations: '', // Fallback empty
 };
 
 const VIDEO_PROVIDER_NAMES: Record<VideoProviderId, string> = {
@@ -190,6 +202,7 @@ export function SettingsDialog({ open, onOpenChange, initialSection }: SettingsD
   const { theme, setTheme } = useTheme();
   const [themeOpen, setThemeOpen] = useState(false);
   const themeRef = useRef<HTMLDivElement>(null);
+  const { isInstallable, showCustomPopup } = usePwa();
 
   // Get settings from store
   const providerId = useSettingsStore((state) => state.providerId);
@@ -203,6 +216,13 @@ export function SettingsDialog({ open, onOpenChange, initialSection }: SettingsD
   const imageProvidersConfig = useSettingsStore((state) => state.imageProvidersConfig);
   const videoProviderId = useSettingsStore((state) => state.videoProviderId);
   const videoProvidersConfig = useSettingsStore((state) => state.videoProvidersConfig);
+  const selectedAgentIds = useSettingsStore((s) => s.selectedAgentIds);
+  const setSelectedAgentIds = useSettingsStore((s) => s.setSelectedAgentIds);
+  const maxTurns = useSettingsStore((s) => s.maxTurns) || "5";
+  const setMaxTurns = useSettingsStore((s) => s.setMaxTurns || (() => {}));
+  const agentMode = useSettingsStore((s) => s.agentMode) || "preset";
+  const setAgentMode = useSettingsStore((s) => s.setAgentMode || (() => {}));
+  
   const ttsProviderId = useSettingsStore((state) => state.ttsProviderId);
   const ttsProvidersConfig = useSettingsStore((state) => state.ttsProvidersConfig);
   const asrProviderId = useSettingsStore((state) => state.asrProviderId);
@@ -325,7 +345,11 @@ export function SettingsDialog({ open, onOpenChange, initialSection }: SettingsD
     setTimeout(async () => {
       setSaveStatus('idle');
       const state = useSettingsStore.getState();
-      const { setLanguage: _l, setTheme: _s, ...serializableStore } = state as unknown as { [key: string]: unknown };
+      const {
+        setLanguage: _l,
+        setTheme: _s,
+        ...serializableStore
+      } = state as unknown as { [key: string]: unknown };
       await syncSettingsToFirebase(serializableStore);
     }, 2000);
   };
@@ -678,12 +702,18 @@ export function SettingsDialog({ open, onOpenChange, initialSection }: SettingsD
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="h-[100dvh] w-screen max-w-none rounded-none border-none sm:rounded-xl sm:border sm:max-w-none sm:w-[85vw] lg:max-w-5xl sm:h-[85vh] p-0 gap-0 block" showCloseButton={false}>
+      <DialogContent
+        className="h-[100dvh] w-screen max-w-none rounded-none border-none sm:rounded-xl sm:border sm:max-w-none sm:w-[85vw] lg:max-w-5xl sm:h-[85vh] p-0 gap-0 block"
+        showCloseButton={false}
+      >
         <DialogTitle className="sr-only">{t('settings.title')}</DialogTitle>
         <DialogDescription className="sr-only">{t('settings.description')}</DialogDescription>
         <div className="flex flex-col md:flex-row h-full overflow-hidden w-full">
           {/* Left Sidebar - Navigation */}
-          <div className="flex-shrink-0 bg-muted/30 p-2 md:p-3 flex max-md:flex-row md:flex-col overflow-x-auto md:overflow-x-hidden space-x-2 md:space-x-0 md:space-y-1 max-md:!w-full max-md:border-b border-border" style={{ width: sidebarWidth }}>
+          <div
+            className="flex-shrink-0 bg-muted/30 p-2 md:p-3 flex max-md:flex-row md:flex-col overflow-x-auto md:overflow-x-hidden space-x-2 md:space-x-0 md:space-y-1 max-md:!w-full max-md:border-b border-border"
+            style={{ width: sidebarWidth }}
+          >
             <button
               onClick={() => setActiveSection('providers')}
               className={cn(
@@ -723,6 +753,18 @@ export function SettingsDialog({ open, onOpenChange, initialSection }: SettingsD
               <span className="truncate">{t('settings.videoSettings')}</span>
             </button>
 
+            <button
+              onClick={() => setActiveSection('agents')}
+              className={cn(
+                'w-full max-md:w-max flex flex-shrink-0 items-center justify-center md:justify-start gap-2 md:gap-3 px-3 py-2 text-sm rounded-lg transition-colors text-left min-w-0',
+                activeSection === 'agents'
+                  ? 'bg-primary/10 text-primary font-medium'
+                  : 'hover:bg-muted',
+              )}
+            >
+              <Users className="h-4 w-4 shrink-0" />
+              <span className="truncate">{t('settings.agentsSettings') || 'Characters'}</span>
+            </button>
             <button
               onClick={() => setActiveSection('tts')}
               className={cn(
@@ -1006,71 +1048,109 @@ export function SettingsDialog({ open, onOpenChange, initialSection }: SettingsD
               {activeSection === 'video' && (
                 <VideoSettings selectedProviderId={selectedVideoProviderId} />
               )}
+              {activeSection === 'agents' && (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-lg font-medium">{t('settings.agentsSettings') || 'Characters'}</h2>
+                      <p className="text-sm text-muted-foreground">
+                        {t('settings.agentsSettingsDesc') || 'Configure AI characters and voices'}
+                      </p>
+                    </div>
+                  </div>
+                  <AgentSettings
+                    agents={useAgentRegistry((s) => Object.values(s.agents).filter(a => a.isDefault))} 
+                    selectedAgentIds={selectedAgentIds}
+                    maxTurns={maxTurns}
+                    agentMode={agentMode}
+                    onToggleAgent={(id) => {
+                      if (selectedAgentIds.includes(id)) {
+                        setSelectedAgentIds(selectedAgentIds.filter(x => x !== id));
+                      } else {
+                        setSelectedAgentIds([...selectedAgentIds, id]);
+                      }
+                    }}
+                    onMaxTurnsChange={setMaxTurns}
+                    onAgentModeChange={setAgentMode}
+                  />
+                </div>
+              )}
               {activeSection === 'tts' && <TTSSettings selectedProviderId={ttsProviderId} />}
               {activeSection === 'asr' && <ASRSettings selectedProviderId={asrProviderId} />}
             </div>
 
             {/* Footer */}
             <div className="flex items-center justify-between px-5 py-3 border-t bg-muted/30">
-              <div className="relative" ref={themeRef}>
-                <button
-                  onClick={() => {
-                    setThemeOpen(!themeOpen);
-                  }}
-                  className="p-1.5 rounded-full text-foreground/60 hover:bg-black/5 dark:hover:bg-white/10 hover:text-foreground hover:shadow-sm transition-all group active:scale-[0.95]"
-                >
-                  {theme === 'light' && <Sun className="w-4 h-4" />}
-                  {theme === 'dark' && <Moon className="w-4 h-4" />}
-                  {theme === 'system' && <Monitor className="w-4 h-4" />}
-                </button>
-                {themeOpen && (
-                  <div className="absolute bottom-full mb-2 left-0 glass border border-black/5 dark:border-white/10 rounded-2xl shadow-xl overflow-hidden z-50 min-w-[140px] max-w-[calc(100vw-2rem)] p-1 animate-in fade-in zoom-in-95 duration-200">
-                    <button
-                      onClick={() => {
-                        setTheme('light');
-                        setThemeOpen(false);
-                      }}
-                      className={cn(
-                        'w-full px-3 py-2 text-left text-sm rounded-xl font-medium transition-all flex items-center gap-3',
-                        theme === 'light'
-                          ? 'bg-black/5 dark:bg-white/10 text-foreground'
-                          : 'text-foreground/70 hover:bg-black/5 dark:hover:bg-white/5',
-                      )}
-                    >
-                      <Sun className="w-4 h-4" />
-                      {t('settings.themeOptions.light')}
-                    </button>
-                    <button
-                      onClick={() => {
-                        setTheme('dark');
-                        setThemeOpen(false);
-                      }}
-                      className={cn(
-                        'w-full px-3 py-2 text-left text-sm rounded-xl font-medium transition-all flex items-center gap-3',
-                        theme === 'dark'
-                          ? 'bg-black/5 dark:bg-white/10 text-foreground'
-                          : 'text-foreground/70 hover:bg-black/5 dark:hover:bg-white/5',
-                      )}
-                    >
-                      <Moon className="w-4 h-4" />
-                      {t('settings.themeOptions.dark')}
-                    </button>
-                    <button
-                      onClick={() => {
-                        setTheme('system');
-                        setThemeOpen(false);
-                      }}
-                      className={cn(
-                        'w-full px-3 py-2 text-left text-sm rounded-xl font-medium transition-all flex items-center gap-3',
-                        theme === 'system'
-                          ? 'bg-black/5 dark:bg-white/10 text-foreground'
-                          : 'text-foreground/70 hover:bg-black/5 dark:hover:bg-white/5',
-                      )}
-                    >
-                      <Monitor className="w-4 h-4" />
-                      {t('settings.themeOptions.system')}
-                    </button>
-                  </div>
+              <div className="flex items-center gap-2">
+                <div className="relative" ref={themeRef}>
+                  <button
+                    onClick={() => {
+                      setThemeOpen(!themeOpen);
+                    }}
+                    className="p-1.5 rounded-full text-foreground/60 hover:bg-black/5 dark:hover:bg-white/10 hover:text-foreground hover:shadow-sm transition-all group active:scale-[0.95]"
+                  >
+                    {theme === 'light' && <Sun className="w-4 h-4" />}
+                    {theme === 'dark' && <Moon className="w-4 h-4" />}
+                    {theme === 'system' && <Monitor className="w-4 h-4" />}
+                  </button>
+                  {themeOpen && (
+                    <div className="absolute bottom-full mb-2 left-0 glass border border-black/5 dark:border-white/10 rounded-2xl shadow-xl overflow-hidden z-50 min-w-[140px] max-w-[calc(100vw-2rem)] p-1 animate-in fade-in zoom-in-95 duration-200">
+                      <button
+                        onClick={() => {
+                          setTheme('light');
+                          setThemeOpen(false);
+                        }}
+                        className={cn(
+                          'w-full px-3 py-2 text-left text-sm rounded-xl font-medium transition-all flex items-center gap-3',
+                          theme === 'light'
+                            ? 'bg-black/5 dark:bg-white/10 text-foreground'
+                            : 'text-foreground/70 hover:bg-black/5 dark:hover:bg-white/5',
+                        )}
+                      >
+                        <Sun className="w-4 h-4" />
+                        {t('settings.themeOptions.light')}
+                      </button>
+                      <button
+                        onClick={() => {
+                          setTheme('dark');
+                          setThemeOpen(false);
+                        }}
+                        className={cn(
+                          'w-full px-3 py-2 text-left text-sm rounded-xl font-medium transition-all flex items-center gap-3',
+                          theme === 'dark'
+                            ? 'bg-black/5 dark:bg-white/10 text-foreground'
+                            : 'text-foreground/70 hover:bg-black/5 dark:hover:bg-white/5',
+                        )}
+                      >
+                        <Moon className="w-4 h-4" />
+                        {t('settings.themeOptions.dark')}
+                      </button>
+                      <button
+                        onClick={() => {
+                          setTheme('system');
+                          setThemeOpen(false);
+                        }}
+                        className={cn(
+                          'w-full px-3 py-2 text-left text-sm rounded-xl font-medium transition-all flex items-center gap-3',
+                          theme === 'system'
+                            ? 'bg-black/5 dark:bg-white/10 text-foreground'
+                            : 'text-foreground/70 hover:bg-black/5 dark:hover:bg-white/5',
+                        )}
+                      >
+                        <Monitor className="w-4 h-4" />
+                        {t('settings.themeOptions.system')}
+                      </button>
+                    </div>
+                  )}
+                </div>
+                {isInstallable && (
+                  <button
+                    onClick={showCustomPopup}
+                    className="flex flex-row items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold tracking-wide uppercase text-white bg-black dark:text-black dark:bg-white rounded-full shadow-sm hover:scale-105 active:scale-95 transition-all w-max"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    Install App
+                  </button>
                 )}
               </div>
 

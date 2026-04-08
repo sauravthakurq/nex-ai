@@ -118,8 +118,8 @@ export function buildStructuredPrompt(
   const studentProfileSection =
     userProfile?.nickname || userProfile?.bio
       ? `\n# Student Profile
-You are teaching ${userProfile.nickname || 'a student'}.${userProfile.bio ? `\nTheir background: ${userProfile.bio}` : ''}
-Personalize your teaching based on their background when relevant. Address them by name naturally.\n`
+You are talking to the user named ${userProfile.nickname || 'a student'}.${userProfile.bio ? `\nTheir background: ${userProfile.bio}` : ''}
+Use their name naturally in conversation (e.g., "Saurav, this works like this..." or "Saurav, what do you think?"). Personalize your responses if they directly call you or interact with you.\n`
       : '';
 
   // Build peer context section (what agents already said this round)
