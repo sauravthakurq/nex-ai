@@ -18,6 +18,7 @@ import { useDiscussionTTS } from '@/lib/hooks/use-discussion-tts';
 import type { AudioIndicatorState } from '@/components/roundtable/audio-indicator';
 import type { Action, DiscussionAction, SpeechAction } from '@/lib/types/action';
 import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from 'motion/react';
 // Playback state persistence removed — refresh always starts from the beginning
 import { ChatArea, type ChatAreaRef } from '@/components/chat/chat-area';
 import { agentsToParticipants, useAgentRegistry } from '@/lib/orchestration/registry/store';
@@ -971,7 +972,7 @@ export function Stage({
 
         {/* Canvas Area */}
         <div
-          className="overflow-hidden relative flex-1 min-h-0 isolate"
+          className="overflow-hidden relative flex-1 min-h-0 isolate transition-[height] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]"
           style={{
             height: sceneViewerHeight,
           }}
@@ -1017,40 +1018,40 @@ export function Stage({
 
         {/* Roundtable Area */}
         {/* Ask AI Pill (Visible when collapsed) */}
-        {!isBottomSheetExpanded && mode === 'playback' && !isPresenting && (
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50">
-            <button
-              onClick={() => setIsBottomSheetExpanded(true)}
-              className="flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-white/70 dark:bg-black/60 backdrop-blur-2xl border border-white/50 dark:border-white/10 shadow-[0_8px_32px_0rgba(0,0,0,0.1)] dark:shadow-[0_8px_32px_0rgba(0,0,0,0.5)] hover:bg-white/90 dark:hover:bg-black/80 transition-all active:scale-95 outline-none"
+        <AnimatePresence>
+          {!isBottomSheetExpanded && mode === 'playback' && !isPresenting && (
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.9 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 shadow-2xl rounded-full"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="text-gray-800 dark:text-gray-200"
+              <button
+                onClick={() => setIsBottomSheetExpanded(true)}
+                className="flex items-center justify-center gap-2.5 px-5 py-2.5 rounded-full bg-white/90 dark:bg-zinc-800/90 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.3)] hover:scale-105 hover:bg-white dark:hover:bg-zinc-800 transition-all active:scale-95 outline-none"
               >
-                <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
-              </svg>
-              <span className="font-medium text-sm text-gray-800 dark:text-gray-200 whitespace-nowrap">
-                Ask AI
-              </span>
-            </button>
-          </div>
-        )}
-
-        {/* Backdrop for mobile */}
-        {isBottomSheetExpanded && mode === 'playback' && !isPresenting && (
-          <div
-            className="fixed inset-0 z-10 md:hidden bg-transparent"
-            onClick={() => setIsBottomSheetExpanded(false)}
-          />
-        )}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-black dark:text-white"
+                >
+                  <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+                </svg>
+                <span className="font-semibold text-[15px] tracking-tight text-black dark:text-white whitespace-nowrap">
+                  Ask AI
+                </span>
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Roundtable Area */}
         {mode === 'playback' && (

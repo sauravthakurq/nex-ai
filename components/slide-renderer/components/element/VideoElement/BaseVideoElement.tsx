@@ -14,6 +14,23 @@ import { createLogger } from '@/lib/logger';
 
 const log = createLogger('BaseVideoElement');
 
+type FullscreenDocument = Document & {
+  webkitFullscreenElement?: Element | null;
+};
+
+type ExtendedNavigator = Navigator & {
+  vendor?: string;
+};
+
+type OrientationController = ScreenOrientation & {
+  lock?: (orientation: OrientationLockType) => Promise<void>;
+  unlock?: () => void;
+};
+
+type ExtendedWindow = Window & {
+  opera?: string;
+};
+
 export interface BaseVideoElementProps {
   elementInfo: PPTVideoElement;
 }
@@ -89,6 +106,56 @@ export function BaseVideoElement({ elementInfo }: BaseVideoElementProps) {
       useCanvasStore.getState().pauseVideo();
     }
   };
+
+  // Automatically lock orientation to landscape when video enters fullscreen on Android
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const handleFullscreenChange = () => {
+      const browserNavigator = navigator as ExtendedNavigator;
+      const browserWindow = window as ExtendedWindow;
+      const fullscreenDocument = document as FullscreenDocument;
+      const screenOrientation = window.screen?.orientation as OrientationController | undefined;
+      const isAndroid = /android/i.test(
+        navigator.userAgent || browserNavigator.vendor || browserWindow.opera || '',
+      );
+      if (!isAndroid) return;
+
+      const fullscreenElement =
+        document.fullscreenElement || fullscreenDocument.webkitFullscreenElement;
+
+      if (fullscreenElement === video) {
+        // Entered fullscreen -> force landscape mode
+        try {
+          if (screenOrientation?.lock) {
+            screenOrientation.lock('landscape').catch(() => {
+              // Ignore errors (e.g. if device doesn't support orientation lock or wasn't triggered by user gesture)
+            });
+          }
+        } catch (_error) {
+          // Ignore
+        }
+      } else {
+        // Exited fullscreen -> unlock orientation allowing it to return to portrait
+        try {
+          if (screenOrientation?.unlock) {
+            screenOrientation.unlock();
+          }
+        } catch (_error) {
+          // Ignore
+        }
+      }
+    };
+
+    video.addEventListener('fullscreenchange', handleFullscreenChange);
+    video.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+
+    return () => {
+      video.removeEventListener('fullscreenchange', handleFullscreenChange);
+      video.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+    };
+  }, [isReady, resolvedSrc]);
 
   return (
     <div

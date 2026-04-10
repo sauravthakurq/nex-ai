@@ -18,6 +18,7 @@ export function getCurrentModelConfig() {
     baseUrl: providerConfig?.baseUrl || '',
     providerType: providerConfig?.type,
     requiresApiKey: providerConfig?.requiresApiKey,
+    fallbackApiKeys: providerConfig?.fallbackApiKeys || [],
     isServerConfigured: providerConfig?.isServerConfigured,
   };
 }

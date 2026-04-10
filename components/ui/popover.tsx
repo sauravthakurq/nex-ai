@@ -5,7 +5,32 @@ import * as PopoverPrimitive from '@radix-ui/react-popover';
 
 import { cn } from '@/lib/utils';
 
-const Popover = PopoverPrimitive.Root;
+const Popover = ({ ...props }: React.ComponentProps<typeof PopoverPrimitive.Root>) => {
+  const { open, onOpenChange } = props;
+
+  React.useEffect(() => {
+    if (!open) return;
+
+    let isPopping = false;
+    const handlePopState = (e: PopStateEvent) => {
+      isPopping = true;
+      e.preventDefault();
+      onOpenChange?.(false);
+    };
+
+    window.history.pushState({ popoverOpen: true }, '');
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      if (!isPopping && window.history.state?.popoverOpen) {
+        window.history.back();
+      }
+    };
+  }, [open, onOpenChange]);
+
+  return <PopoverPrimitive.Root {...props} />;
+};
 
 const PopoverTrigger = PopoverPrimitive.Trigger;
 

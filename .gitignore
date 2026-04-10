@@ -71,3 +71,15 @@ next-env.d.ts
 
 # docs
 /docs
+
+# local scratch files
+/fix*.js
+/fix*.ts
+/fix*.py
+/test-ai-fallback.ts
+/test-fallback.ts
+/test_popover.tsx
+/groq_provider.txt
+/final-colors.js
+/ui.jsx
+/home card/

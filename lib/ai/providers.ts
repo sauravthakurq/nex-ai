@@ -812,6 +812,30 @@ export const PROVIDERS: Record<ProviderId, ProviderConfig> = {
       },
     ],
   },
+  groq: {
+    id: 'groq',
+    name: 'Groq',
+    type: 'openai',
+    defaultBaseUrl: 'https://api.groq.com/openai/v1',
+    requiresApiKey: true,
+    icon: '/logos/openai.svg',
+    models: [
+      {
+        id: 'llama-3.1-8b-instant',
+        name: 'LLaMA 3.1 8B Instant',
+        contextWindow: 128000,
+        outputWindow: 8192,
+        capabilities: { streaming: true, tools: true, vision: false },
+      },
+      {
+        id: 'openai/gpt-oss-120b',
+        name: 'o1 / gpt-oss-120b',
+        contextWindow: 128000,
+        outputWindow: 8192,
+        capabilities: { streaming: true, tools: true, vision: false },
+      },
+    ],
+  },
 };
 
 /**

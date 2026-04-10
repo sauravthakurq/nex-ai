@@ -219,3 +219,53 @@
     transform: translateX(100%);
   }
 }
+
+/* Fast Tap & Scrolling optimizations */
+* {
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+/* Fast Tap & Scrolling optimizations */
+html,
+body {
+  -webkit-tap-highlight-color: transparent !important;
+  touch-action: manipulation !important;
+  overscroll-behavior-y: none;
+  -webkit-font-smoothing: antialiased;
+}
+* {
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+/* Remove scroll delays */
+.overflow-y-auto,
+.overflow-y-scroll,
+.overflow-auto {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Make taps instant on any clickable element */
+button,
+a,
+[role='button'],
+input,
+select,
+textarea {
+  touch-action: manipulation;
+  cursor: pointer;
+}
+
+/* Replace Next.js dev indicator with apple-icon.png */
+#devtools-indicator svg {
+  display: none !important;
+}
+#devtools-indicator #next-logo {
+  background-image: url('/apple-icon.png') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  width: 20px !important;
+  height: 20px !important;
+  margin: 0 auto;
+  border-radius: 50%;
+}

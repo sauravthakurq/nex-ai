@@ -11,10 +11,14 @@ import type { AgentConfig } from '@/lib/orchestration/registry/types';
 import { useAgentRegistry } from '@/lib/orchestration/registry/store';
 import { useSettingsStore } from '@/lib/store/settings';
 import { getTTSVoices } from '@/lib/audio/constants';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import azureVoicesData from '@/lib/audio/azure.json';
-
-
 
 interface AgentSettingsProps {
   agents: AgentConfig[];
@@ -83,27 +87,33 @@ export function AgentSettings({
         </div>
 
         {agentMode === 'preset' ? (
-                              <>
+          <>
             {/* Preset mode: existing agent multi-select */}
             <div className="space-y-2">
               <Label>{t('settings.selectAgents') || 'Configure Characters'}</Label>
-              <p className="text-sm text-muted-foreground">{t('settings.agentSettingsDesc') || 'Configure each character\'s name and voice. Check to enable them.'}</p>
+              <p className="text-sm text-muted-foreground">
+                {t('settings.agentSettingsDesc') ||
+                  "Configure each character's name and voice. Check to enable them."}
+              </p>
             </div>
 
             <div className="space-y-3 border rounded-lg p-2 bg-muted/30">
               {agents.map((agent) => {
                 const isSelected = selectedAgentIds.includes(agent.id);
                 const ttsProviderId = useSettingsStore.getState()?.ttsProviderId || 'openai-tts';
-                const voices = ttsProviderId === 'azure-tts' 
-                  ? azureVoicesData.voices.map(v => ({ id: v.ShortName, name: v.LocalName }))
-                  : getTTSVoices(ttsProviderId);
+                const voices =
+                  ttsProviderId === 'azure-tts'
+                    ? azureVoicesData.voices.map((v) => ({ id: v.ShortName, name: v.LocalName }))
+                    : getTTSVoices(ttsProviderId);
 
                 return (
                   <div
                     key={agent.id}
                     className={cn(
                       'flex flex-col space-y-3 sm:space-y-0 sm:flex-row sm:items-center sm:space-x-3 p-3 rounded-lg border transition-all',
-                      isSelected ? 'bg-primary/5 border-primary/50' : 'bg-background hover:bg-muted/50 border-transparent'
+                      isSelected
+                        ? 'bg-primary/5 border-primary/50'
+                        : 'bg-background hover:bg-muted/50 border-transparent',
                     )}
                   >
                     <div className="flex items-center space-x-3">
@@ -118,32 +128,42 @@ export function AgentSettings({
                         <AvatarFallback>{getAgentName(agent).charAt(0)}</AvatarFallback>
                       </Avatar>
                     </div>
-                    
+
                     <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3 min-w-0">
                       <div className="space-y-1">
                         <Label className="text-xs text-muted-foreground ml-1">Name</Label>
                         <div className="flex items-center gap-1.5">
-                          <Input 
-                            value={agent.name} 
-                            onChange={(e) => useAgentRegistry.getState().updateAgent(agent.id, { name: e.target.value })}
+                          <Input
+                            value={agent.name}
+                            onChange={(e) =>
+                              useAgentRegistry
+                                .getState()
+                                .updateAgent(agent.id, { name: e.target.value })
+                            }
                             className="h-8 text-sm"
                             placeholder={getAgentName(agent)}
                           />
                         </div>
                       </div>
-                      
+
                       <div className="space-y-1">
                         <Label className="text-xs text-muted-foreground ml-1">Voice</Label>
-                        <Select 
-                          value={agent.voiceConfig?.voiceId || voices[0]?.id} 
-                          onValueChange={(val) => useAgentRegistry.getState().updateAgent(agent.id, { voiceConfig: { providerId: ttsProviderId, voiceId: val }})}
+                        <Select
+                          value={agent.voiceConfig?.voiceId || voices[0]?.id}
+                          onValueChange={(val) =>
+                            useAgentRegistry.getState().updateAgent(agent.id, {
+                              voiceConfig: { providerId: ttsProviderId, voiceId: val },
+                            })
+                          }
                         >
                           <SelectTrigger className="h-8 text-sm">
                             <SelectValue placeholder="Select voice" />
                           </SelectTrigger>
                           <SelectContent className="max-h-[200px]">
-                            {voices.map(v => (
-                              <SelectItem key={v.id} value={v.id}>{v.name}</SelectItem>
+                            {voices.map((v) => (
+                              <SelectItem key={v.id} value={v.id}>
+                                {v.name}
+                              </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>

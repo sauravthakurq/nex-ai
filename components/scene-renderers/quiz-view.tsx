@@ -93,6 +93,10 @@ async function gradeShortAnswerQuestion(
       'x-model': modelConfig.modelString,
       'x-api-key': modelConfig.apiKey,
     };
+    const fallbackKeys = modelConfig.fallbackApiKeys || [];
+    if (fallbackKeys.length > 0) {
+      headers['x-fallback-api-keys'] = JSON.stringify(fallbackKeys);
+    }
     if (modelConfig.baseUrl) headers['x-base-url'] = modelConfig.baseUrl;
     if (modelConfig.providerType) headers['x-provider-type'] = modelConfig.providerType;
     if (modelConfig.requiresApiKey) headers['x-requires-api-key'] = 'true';

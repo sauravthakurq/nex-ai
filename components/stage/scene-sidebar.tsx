@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   PanelLeftClose,
@@ -57,7 +57,19 @@ export function SceneSidebar({
   };
 
   const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_WIDTH);
+  const [actualThumbWidth, setActualThumbWidth] = useState(0);
+  const listRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
+
+  useEffect(() => {
+    const el = listRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => {
+      setActualThumbWidth(entry.contentRect.width - 32); // accounting for paddings
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   const handleDragStart = useCallback(
     (e: React.MouseEvent) => {
@@ -162,6 +174,7 @@ export function SceneSidebar({
 
           {/* Scenes List */}
           <div
+            ref={listRef}
             data-testid="scene-list"
             className="flex-1 overflow-y-auto overflow-x-hidden p-2 space-y-2 scrollbar-hide pt-1"
           >
@@ -225,7 +238,7 @@ export function SceneSidebar({
                           slide={slideContent.canvas}
                           viewportSize={viewportSize}
                           viewportRatio={viewportRatio}
-                          size={Math.max(100, sidebarWidth - 28)}
+                          size={Math.max(100, actualThumbWidth > 0 ? actualThumbWidth : sidebarWidth - 28)}
                         />
                       ) : scene.type === 'quiz' ? (
                         /* Quiz: question bar + 2x2 option grid */

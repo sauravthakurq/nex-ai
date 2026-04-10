@@ -69,6 +69,7 @@ export async function POST(req: NextRequest) {
       baseUrl: body.baseUrl,
       providerType: body.providerType,
       requiresApiKey: body.requiresApiKey,
+      fallbackApiKeys: body.fallbackApiKeys,
     });
 
     if (!resolvedApiKey && body.requiresApiKey !== false) {

@@ -43,19 +43,6 @@ export function BottomSheet({ children, visible = true }: BottomSheetProps) {
 
   return (
     <>
-      {/* Dim Overlay for Mobile */}
-      <AnimatePresence>
-        {visible && isExpanded && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.2 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setIsExpanded(false)}
-            className="fixed inset-0 bg-black z-30 transition-opacity md:hidden cursor-pointer"
-          />
-        )}
-      </AnimatePresence>
-
       {/* Floating Ask AI Pill */}
       <AnimatePresence>
         {visible && !isExpanded && (
@@ -64,14 +51,14 @@ export function BottomSheet({ children, visible = true }: BottomSheetProps) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed bottom-6 z-50 left-1/2 -translate-x-1/2"
+            className="fixed bottom-8 z-50 left-1/2 -translate-x-1/2 shadow-2xl rounded-full"
           >
             <button
               onClick={handlePillClick}
-              className="flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-white/70 dark:bg-black/60 backdrop-blur-2xl border border-white/50 dark:border-white/10 shadow-[0_8px_32px_0rgba(0,0,0,0.1)] dark:shadow-[0_8px_32px_0rgba(0,0,0,0.5)] hover:bg-white/90 dark:hover:bg-black/80 transition-all active:scale-95 outline-none"
+              className="flex items-center justify-center gap-2.5 px-5 py-2.5 rounded-full bg-white/90 dark:bg-zinc-800/90 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.3)] hover:scale-105 hover:bg-white dark:hover:bg-zinc-800 transition-all active:scale-95 outline-none"
             >
-              <Sparkles className="w-4 h-4 text-gray-800 dark:text-gray-200" />
-              <span className="font-medium text-sm text-gray-800 dark:text-gray-200 whitespace-nowrap">
+              <Sparkles className="w-[18px] h-[18px] text-black dark:text-white" />
+              <span className="font-semibold text-[15px] tracking-tight text-black dark:text-white whitespace-nowrap">
                 Ask AI
               </span>
             </button>

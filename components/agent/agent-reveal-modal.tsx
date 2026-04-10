@@ -106,7 +106,7 @@ export function AgentRevealModal({ agents, open, onClose, onAllRevealed }: Agent
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-[100] flex flex-col items-center justify-start md:justify-center overflow-y-auto px-4 py-10 bg-zinc-100/90 backdrop-blur-sm dark:bg-black/70 dark:backdrop-blur-md"
+          className="fixed inset-0 z-[100] flex flex-col items-center justify-start md:justify-center overflow-y-auto px-4 py-8 md:py-10 bg-zinc-100/90 backdrop-blur-sm dark:bg-black/70 dark:backdrop-blur-md"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -125,20 +125,24 @@ export function AgentRevealModal({ agents, open, onClose, onAllRevealed }: Agent
             </motion.button>
           )}
 
-          {/* Title */}
-          <motion.h2
-            className="mb-8 text-xl md:text-3xl font-bold text-zinc-800 drop-shadow-sm dark:text-white dark:drop-shadow-lg"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1, duration: 0.4 }}
-          >
-            <Sparkles className="mr-2 inline-block size-5 md:size-6 text-amber-500 dark:text-yellow-400" />
-            {t('generation.agentRevealTitle')}
-          </motion.h2>
+          {/* Title - Pushed to top on mobile, centered on desktop */}
+          <div className="w-full flex-shrink-0 flex justify-center mt-2 md:mt-0 mb-4 md:mb-8">
+            <motion.h2
+              className="text-xl md:text-3xl font-bold text-zinc-800 drop-shadow-sm dark:text-white dark:drop-shadow-lg"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1, duration: 0.4 }}
+            >
+              <Sparkles className="mr-2 inline-block size-5 md:size-6 text-amber-500 dark:text-yellow-400" />
+              {t('generation.agentRevealTitle')}
+            </motion.h2>
+          </div>
 
-          {/* Cards */}
-          <div className="flex w-full overflow-x-auto snap-x snap-mandatory gap-4 px-4 md:flex-wrap md:justify-center md:items-stretch md:overflow-x-visible md:snap-none md:gap-5 scrollbar-hide py-2">
-            {agents.map((agent, index) => {
+          {/* Wrapper for cards and progress button to center them together */}
+          <div className="flex-1 w-full flex flex-col items-center justify-center -mt-8 md:mt-0">
+            {/* Cards */}
+            <div className="flex w-full overflow-x-auto snap-x snap-mandatory gap-4 px-4 md:flex-wrap md:justify-center md:items-stretch md:overflow-x-visible md:snap-none md:gap-5 scrollbar-hide py-2">
+              {agents.map((agent, index) => {
               const isRevealed = index < revealedCount;
               const roleIcon = ROLE_ICONS[agent.role] ?? '🎓';
 
@@ -396,6 +400,7 @@ export function AgentRevealModal({ agents, open, onClose, onAllRevealed }: Agent
               </motion.button>
             )}
           </motion.div>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>

@@ -100,6 +100,7 @@ function GenerationPreviewContent() {
       'Content-Type': 'application/json',
       'x-model': modelConfig.modelString,
       'x-api-key': modelConfig.apiKey,
+      'x-fallback-api-keys': modelConfig.fallbackApiKeys ? JSON.stringify(modelConfig.fallbackApiKeys) : '[]',
       'x-base-url': modelConfig.baseUrl,
       'x-provider-type': modelConfig.providerType || '',
       'x-requires-api-key': modelConfig.requiresApiKey ? 'true' : 'false',
@@ -614,9 +615,6 @@ function GenerationPreviewContent() {
         } catch {
           /* ignore */
         }
-
-        // Brief pause to let user see the final outline state
-        await new Promise((resolve) => setTimeout(resolve, 800));
       }
 
       // Move to scene generation step
@@ -1045,9 +1043,9 @@ function GenerationPreviewContent() {
                 animate={{ opacity: 1 }}
                 className="flex items-center justify-center w-full"
               >
-                <AgentWorkingAnimation 
+                <AgentWorkingAnimation
                   showButton={generatedAgents.length > 0 && !showAgentReveal}
-                  onViewAgents={() => setShowAgentReveal(true)} 
+                  onViewAgents={() => setShowAgentReveal(true)}
                 />
               </motion.div>
             ) : null}

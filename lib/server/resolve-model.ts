@@ -9,6 +9,7 @@ import type { NextRequest } from 'next/server';
 import { getModel, parseModelString, type ModelWithInfo } from '@/lib/ai/providers';
 import { resolveApiKey, resolveBaseUrl, resolveProxy } from '@/lib/server/provider-config';
 import { validateUrlForSSRF } from '@/lib/server/ssrf-guard';
+import { createFallbackModel } from '@/lib/server/fallback-model'; // Custom fallback aggregator
 
 export interface ResolvedModel extends ModelWithInfo {
   /** Original model string (e.g. "openai/gpt-4o-mini") */
@@ -28,6 +29,7 @@ export function resolveModel(params: {
   baseUrl?: string;
   providerType?: string;
   requiresApiKey?: boolean;
+  fallbackApiKeys?: string[];
 }): ResolvedModel {
   const modelString = params.modelString || process.env.DEFAULT_MODEL || 'gpt-4o-mini';
   const { providerId, modelId } = parseModelString(modelString);
@@ -45,7 +47,16 @@ export function resolveModel(params: {
     : resolveApiKey(providerId, params.apiKey || '');
   const baseUrl = clientBaseUrl ? clientBaseUrl : resolveBaseUrl(providerId, params.baseUrl);
   const proxy = resolveProxy(providerId);
-  const { model, modelInfo } = getModel({
+  let { model } = getModel({
+    providerId,
+    modelId,
+    apiKey,
+    baseUrl,
+    proxy,
+    providerType: params.providerType as 'openai' | 'anthropic' | 'google' | undefined,
+    requiresApiKey: params.requiresApiKey,
+  });
+  const { modelInfo } = getModel({
     providerId,
     modelId,
     apiKey,
@@ -55,20 +66,46 @@ export function resolveModel(params: {
     requiresApiKey: params.requiresApiKey,
   });
 
+  if (params.fallbackApiKeys && params.fallbackApiKeys.length > 0) {
+    const fallbacks = params.fallbackApiKeys.map((fbApiKey) => {
+      return getModel({
+        providerId,
+        modelId,
+        apiKey: fbApiKey,
+        baseUrl: clientBaseUrl ? clientBaseUrl : resolveBaseUrl(providerId, params.baseUrl),
+        proxy,
+        providerType: params.providerType as 'openai' | 'anthropic' | 'google' | undefined,
+        requiresApiKey: params.requiresApiKey,
+      }).model;
+    });
+    model = createFallbackModel([model, ...fallbacks]);
+  }
+
   return { model, modelInfo, modelString, apiKey };
 }
 
 /**
  * Resolve a language model from standard request headers.
  *
- * Reads: x-model, x-api-key, x-base-url, x-provider-type, x-requires-api-key
+ * Reads: x-model, x-api-key, x-base-url, x-provider-type, x-requires-api-key, x-fallback-api-keys
  */
 export function resolveModelFromHeaders(req: NextRequest): ResolvedModel {
+  let fallbackApiKeys: string[] = [];
+  const fallbackKeysHeader = req.headers.get('x-fallback-api-keys');
+  if (fallbackKeysHeader) {
+    try {
+      fallbackApiKeys = JSON.parse(fallbackKeysHeader);
+    } catch (e) {
+      console.error('Failed to parse x-fallback-api-keys header', e);
+    }
+  }
+
   return resolveModel({
     modelString: req.headers.get('x-model') || undefined,
     apiKey: req.headers.get('x-api-key') || undefined,
     baseUrl: req.headers.get('x-base-url') || undefined,
     providerType: req.headers.get('x-provider-type') || undefined,
     requiresApiKey: req.headers.get('x-requires-api-key') === 'true' ? true : undefined,
+    fallbackApiKeys,
   });
 }

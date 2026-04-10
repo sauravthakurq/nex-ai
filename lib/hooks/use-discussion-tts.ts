@@ -170,28 +170,30 @@ export function useDiscussionTTS({ enabled, agents, onAudioStateChange }: Discus
       if (!data.base64) throw new Error('No audio in response');
 
       const audioUrl = `data:audio/${data.format || 'mp3'};base64,${data.base64}`;
-      const audio = new Audio(audioUrl);
+      let audio = audioRef.current;
+      if (!audio) {
+        audio = new Audio();
+        audioRef.current = audio;
+      }
+      audio.src = audioUrl;
       audio.playbackRate = playbackSpeed;
       audio.volume = ttsMuted ? 0 : ttsVolume;
-      audioRef.current = audio;
-      audio.addEventListener('ended', () => {
-        audioRef.current = null;
+      audio.onended = () => {
         isPlayingRef.current = false;
         segmentDoneCounterRef.current++;
         onAudioStateChangeRef.current?.(item.agentId, 'idle');
         if (!pausedRef.current) {
           queueMicrotask(() => processQueueRef.current());
         }
-      });
-      audio.addEventListener('error', () => {
-        audioRef.current = null;
+      };
+      audio.onerror = () => {
         isPlayingRef.current = false;
         segmentDoneCounterRef.current++;
         onAudioStateChangeRef.current?.(item.agentId, 'idle');
         if (!pausedRef.current) {
           queueMicrotask(() => processQueueRef.current());
         }
-      });
+      };
 
       // If paused during TTS generation, keep audio ready but don't play
       if (pausedRef.current) {
@@ -201,7 +203,15 @@ export function useDiscussionTTS({ enabled, agents, onAudioStateChange }: Discus
       }
 
       onAudioStateChangeRef.current?.(item.agentId, 'playing');
-      await audio.play();
+      await audio.play().catch((err) => {
+        console.error('[DiscussionTTS] TTS playback failed:', err);
+        isPlayingRef.current = false;
+        segmentDoneCounterRef.current++;
+        onAudioStateChangeRef.current?.(item.agentId, 'idle');
+        if (!pausedRef.current) {
+          queueMicrotask(() => processQueueRef.current());
+        }
+      });
     } catch (err) {
       if ((err as Error).name !== 'AbortError') {
         console.error('[DiscussionTTS] TTS generation failed:', err);

@@ -7,6 +7,29 @@ import { cn } from '@/lib/utils';
 import { CheckIcon, ChevronRightIcon } from 'lucide-react';
 
 function DropdownMenu({ ...props }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
+  const { open, onOpenChange } = props;
+
+  React.useEffect(() => {
+    if (!open) return;
+
+    let isPopping = false;
+    const handlePopState = (e: PopStateEvent) => {
+      isPopping = true;
+      e.preventDefault();
+      onOpenChange?.(false);
+    };
+
+    window.history.pushState({ dropdownOpen: true }, '');
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      if (!isPopping && window.history.state?.dropdownOpen) {
+        window.history.back();
+      }
+    };
+  }, [open, onOpenChange]);
+
   return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
 }
 

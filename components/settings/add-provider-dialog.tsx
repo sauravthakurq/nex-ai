@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Plus } from 'lucide-react';
+import { Plus, Eye, EyeOff, Trash2 } from 'lucide-react';
 import { useI18n } from '@/lib/hooks/use-i18n';
 import { cn } from '@/lib/utils';
 
@@ -16,6 +16,8 @@ export interface NewProviderData {
   baseUrl: string;
   icon: string;
   requiresApiKey: boolean;
+  apiKey?: string;
+  fallbackApiKeys?: string[];
 }
 
 interface AddProviderDialogProps {
@@ -33,6 +35,10 @@ export function AddProviderDialog({ open, onOpenChange, onAdd }: AddProviderDial
   const [baseUrl, setBaseUrl] = useState('');
   const [icon, setIcon] = useState('');
   const [requiresApiKey, setRequiresApiKey] = useState(true);
+  const [apiKey, setApiKey] = useState('');
+  const [fallbackApiKeys, setFallbackApiKeys] = useState<string[]>([]);
+  const [showApiKey, setShowApiKey] = useState(false);
+  const [showFallbackApiKey, setShowFallbackApiKey] = useState<boolean[]>([]);
 
   // Reset form when dialog closes (derived state pattern)
   const [prevOpen, setPrevOpen] = useState(open);
@@ -44,6 +50,10 @@ export function AddProviderDialog({ open, onOpenChange, onAdd }: AddProviderDial
       setBaseUrl('');
       setIcon('');
       setRequiresApiKey(true);
+      setApiKey('');
+      setFallbackApiKeys([]);
+      setShowApiKey(false);
+      setShowFallbackApiKey([]);
     }
   }
 
@@ -58,7 +68,28 @@ export function AddProviderDialog({ open, onOpenChange, onAdd }: AddProviderDial
       baseUrl,
       icon,
       requiresApiKey,
+      apiKey,
+      fallbackApiKeys,
     });
+  };
+
+  const addFallbackApiKey = () => {
+    if (fallbackApiKeys.length < 7) {
+      setFallbackApiKeys([...fallbackApiKeys, '']);
+      setShowFallbackApiKey([...showFallbackApiKey, false]);
+    }
+  };
+
+  const handleFallbackApiKeyChange = (index: number, key: string) => {
+    const updated = [...fallbackApiKeys];
+    updated[index] = key;
+    setFallbackApiKeys(updated);
+  };
+
+  const removeFallbackApiKey = (index: number) => {
+    const updated = fallbackApiKeys.filter((_, i) => i !== index);
+    setFallbackApiKeys(updated);
+    setShowFallbackApiKey(showFallbackApiKey.filter((_, i) => i !== index));
   };
 
   return (
@@ -80,6 +111,9 @@ export function AddProviderDialog({ open, onOpenChange, onAdd }: AddProviderDial
               placeholder={t('settings.providerNamePlaceholder')}
               value={name}
               onChange={(e) => setName(e.target.value)}
+              autoComplete="off"
+              spellCheck={false}
+              data-autocomplete="none"
             />
           </div>
 
@@ -150,12 +184,105 @@ export function AddProviderDialog({ open, onOpenChange, onAdd }: AddProviderDial
             <Checkbox
               id="requires-api-key"
               checked={requiresApiKey}
-              onCheckedChange={(checked) => setRequiresApiKey(checked as boolean)}
+              onCheckedChange={(checked) => {
+                setRequiresApiKey(checked as boolean);
+                if (!checked) {
+                  setApiKey('');
+                  setFallbackApiKeys([]);
+                  setShowApiKey(false);
+                  setShowFallbackApiKey([]);
+                }
+              }}
             />
             <label htmlFor="requires-api-key" className="text-sm cursor-pointer">
               {t('settings.requiresApiKey')}
             </label>
           </div>
+
+          {/* API Key Inputs */}
+          {requiresApiKey && (
+            <div className="space-y-4 pt-2 -mt-2">
+              <div className="space-y-2">
+                <Label>{t('settings.providerApiKey', 'API Key')}</Label>
+                <div className="flex gap-2 items-center">
+                  <div className="relative flex-1">
+                    <Input
+                      name="new-provider-api-key"
+                      type={showApiKey ? 'text' : 'password'}
+                      autoComplete="new-password"
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      spellCheck={false}
+                      placeholder={t('settings.providerApiKeyPlaceholder', 'sk-...')}
+                      value={apiKey}
+                      onChange={(e) => setApiKey(e.target.value)}
+                      className="h-9 pr-8"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowApiKey(!showApiKey)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={addFallbackApiKey}
+                    title="Add Fallback API Key (Limit 7)"
+                    disabled={fallbackApiKeys.length >= 7}
+                    className="gap-0 w-9 px-0 h-9"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              {fallbackApiKeys.length > 0 && (
+                <div className="space-y-2 pl-4 border-l-2 border-border/50">
+                  <Label className="text-xs text-muted-foreground">Fallback API Keys</Label>
+                  {fallbackApiKeys.map((fbKey, index) => (
+                    <div key={`fallback-${index}`} className="flex gap-2 items-center">
+                      <div className="relative flex-1">
+                        <Input
+                          name={`new-fallback-api-key-${index}`}
+                          type={showFallbackApiKey[index] ? 'text' : 'password'}
+                          autoComplete="new-password"
+                          autoCapitalize="none"
+                          autoCorrect="off"
+                          spellCheck={false}
+                          placeholder={t('settings.providerApiKeyPlaceholder', 'sk-... (Fallback)')}
+                          value={fbKey}
+                          onChange={(e) => handleFallbackApiKeyChange(index, e.target.value)}
+                          className="h-9 pr-8"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = [...showFallbackApiKey];
+                            updated[index] = !updated[index];
+                            setShowFallbackApiKey(updated);
+                          }}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        >
+                          {showFallbackApiKey[index] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeFallbackApiKey(index)}
+                        className="text-destructive hover:bg-destructive/10 hover:text-destructive w-9 px-0 h-9 shrink-0"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Footer */}
           <div className="flex items-center justify-end gap-2 pt-3 border-t">

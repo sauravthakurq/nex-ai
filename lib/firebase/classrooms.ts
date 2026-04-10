@@ -13,7 +13,7 @@ import {
 } from 'firebase/firestore';
 
 export interface FeaturedClassroom {
-  classroomData?: any;
+  classroomData?: unknown;
   id: string;
   topic: string;
   title: string;

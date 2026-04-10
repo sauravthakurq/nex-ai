@@ -2,6 +2,11 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { Download, X } from 'lucide-react';
 
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
+}
+
 interface PwaContextType {
   isInstallable: boolean;
   showCustomPopup: () => void;
@@ -15,8 +20,8 @@ const PwaContext = createContext<PwaContextType>({
 export const usePwa = () => useContext(PwaContext);
 
 export function PwaProvider({ children }: { children: ReactNode }) {
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [isInstallable, setIsInstallable] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [isInstallable, setIsInstallable] = useState(true);
   const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
@@ -25,20 +30,15 @@ export function PwaProvider({ children }: { children: ReactNode }) {
       navigator.serviceWorker.register('/sw.js').catch(console.error);
     }
 
-    const handler = (e: any) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
+    const handler = (e: Event) => {
+      const installPromptEvent = e as BeforeInstallPromptEvent;
+      installPromptEvent.preventDefault();
+      setDeferredPrompt(installPromptEvent);
       setIsInstallable(true);
     };
 
     if (typeof window !== 'undefined') {
       window.addEventListener('beforeinstallprompt', handler);
-
-      // On iOS or browsers that don't support beforeinstallprompt but support PWA,
-      // we can still show the pill, but maybe we only show the install button unconditionally.
-      // Let's just always render the pill button but handle iOS manually.
-      // Or we can rely on isInstallable. Let's make it always true for demonstration.
-      setIsInstallable(true);
     }
 
     return () => {
@@ -52,6 +52,7 @@ export function PwaProvider({ children }: { children: ReactNode }) {
     if (!deferredPrompt) {
       alert("To install: Tap the Share button (iOS) or browser menu, then 'Add to Home Screen'.");
       setShowPopup(false);
+      setIsInstallable(false); // remove after clicking
       return;
     }
     deferredPrompt.prompt();

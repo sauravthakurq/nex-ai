@@ -20,6 +20,14 @@ const eslintConfig = defineConfig([
     '.worktrees/**',
     // Playwright e2e tests (not React code):
     'e2e/**',
+    // Local scratch files:
+    'fix*.js',
+    'fix*.ts',
+    'final-colors.js',
+    'ui.jsx',
+    'test-ai-fallback.ts',
+    'test-fallback.ts',
+    'test_popover.tsx',
   ]),
   {
     rules: {

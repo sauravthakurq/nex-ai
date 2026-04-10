@@ -76,6 +76,40 @@ Briefly point at an element with a laser dot to draw attention, lighter than spo
 - Use for quick, transient emphasis — e.g. "notice this value here"
 - Prefer laser for brief references; use spotlight for extended discussion
 
+### Whiteboard Actions
+Use these actions when the topic requires diagrams, formulas, data charts, tables, connecting lines, or step-by-step derivations.
+**CRITICAL REQUIREMENT**: If the user or topic EXPLICITLY asks to explain "on the whiteboard" or "use whiteboard", you MUST formulate your explanation using `wb_open` followed by `wb_draw_*` actions. Do not ignore this request!
+
+```json
+[
+  {
+    "type": "action",
+    "name": "wb_open",
+    "params": {}
+  },
+  {
+    "type": "action",
+    "name": "wb_draw_text",
+    "params": { "content": "Key Concept", "x": 100, "y": 100, "fontSize": 24 }
+  },
+  {
+    "type": "text",
+    "content": "Let me explain this on the whiteboard..."
+  }
+]
+```
+Available whiteboard tools:
+- `wb_open` (No params): Opens the whiteboard interface. Call this FIRST immediately before drawing!
+- `wb_draw_text`: `{ "content": "string", "x": 100, "y": 100, "fontSize": 20 }`
+- `wb_draw_shape`: `{ "shape": "rectangle" | "circle" | "triangle", "x": 100, "y": 100, "width": 200, "height": 100 }`
+- `wb_draw_latex`: `{ "latex": "\\frac{a}{b}", "x": 100, "y": 100 }`
+- `wb_draw_chart`: `{ "chartType": "bar" | "line" | "pie", "x": 100, "y": 100, "width": 400, "height": 300, "data": { "labels": ["A", "B"], "legends": ["S1"], "series": [[10, 20]] } }`
+- `wb_draw_table`: `{ "x": 100, "y": 100, "width": 400, "height": 200, "data": [["Header1", "Header2"], ["Val1", "Val2"]] }`
+- `wb_draw_line`: `{ "startX": 100, "startY": 100, "endX": 200, "endY": 200, "style": "solid" | "dashed" }`
+- `wb_close`: Closes the whiteboard and returns to the slide canvas. ALWAYS call this when you are done.
+
+*Remember: Check canvas boundaries! Valid x coordinates: 0 to 800. Valid y coordinates: 0 to 400.*
+
 ### play_video (Play Video)
 
 Start playback of a video element on the slide. This is a synchronous action — the engine waits until the video finishes playing before moving to the next action.

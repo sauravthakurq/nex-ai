@@ -14,7 +14,8 @@ export type BuiltInProviderId =
   | 'kimi'
   | 'minimax'
   | 'glm'
-  | 'grok';
+  | 'grok'
+  | 'groq';
 
 /**
  * Provider ID (built-in or custom)

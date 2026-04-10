@@ -11,6 +11,7 @@ import {
   Copy,
   ImagePlus,
   Pencil,
+  User,
   Trash2,
   Settings,
   Sun,
@@ -343,22 +344,31 @@ function HomePage() {
       {/* ═══ Top-right pill ═══ */}
       <div
         ref={toolbarRef}
-        className="fixed top-4 right-4 z-50 flex items-center gap-3 bg-black/20 dark:bg-white/10 backdrop-blur-md px-4 py-2 rounded-full shadow-sm"
+        className="fixed top-4 right-4 z-50 flex items-center gap-2 bg-black/20 dark:bg-white/10 backdrop-blur-md px-3 py-2 rounded-full shadow-sm touch-manipulation"
       >
-        {/* Login Button */}
+        {/* Login Button (Icon Only) */}
         <button
           onClick={() => setLoginOpen(true)}
-          className="border border-white rounded-full bg-transparent text-white px-4 py-1 text-sm font-medium hover:bg-white/10 transition-colors max-w-[150px] truncate"
+          className="w-8 h-8 flex items-center justify-center rounded-full text-white hover:bg-white/10 transition-all active:scale-95 shrink-0"
         >
-          {user ? user.email?.split('@')[0] : 'Login'}
+          {user ? (
+            <div className="w-full h-full rounded-full bg-gradient-to-tr from-amber-500 to-orange-400 flex items-center justify-center text-sm font-bold shadow-inner">
+              {user.email?.charAt(0).toUpperCase() || 'U'}
+            </div>
+          ) : (
+            <User className="size-5" />
+          )}
         </button>
+
+        {/* Separator */}
+        <div className="w-px h-5 bg-white/20 mx-1" />
 
         {/* Settings Button */}
         <button
           onClick={() => setSettingsOpen(true)}
-          className="p-1 rounded-full text-white hover:bg-white/10 transition-all group active:scale-[0.95]"
+          className="w-8 h-8 flex items-center justify-center rounded-full text-white hover:bg-white/10 transition-all group active:scale-95 shrink-0"
         >
-          <Settings className="w-5 h-5 group-hover:rotate-45 transition-transform duration-500 ease-out" />
+          <Settings className="size-5 group-hover:rotate-45 transition-transform duration-200" />
         </button>
       </div>
       <SettingsDialog
@@ -388,7 +398,10 @@ function HomePage() {
         initial={{ opacity: 1, y: 0 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0 }}
-        className={cn('relative z-20 w-full max-w-[800px] flex flex-col items-center', 'mt-[8vh]')}
+        className={cn(
+          'relative z-20 w-full max-w-[800px] flex flex-col items-center',
+          'mt-[2vh] md:mt-[4vh]',
+        )}
       >
         {/* ── Logo ── */}
         <motion.div
@@ -405,7 +418,7 @@ function HomePage() {
           initial={{ opacity: 1 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0 }}
-          className="text-sm text-white/80 mb-8 text-center max-w-xl"
+          className="text-sm text-white/80 mb-6 text-center max-w-xl"
         >
           {t('home.slogan')}
         </motion.p>

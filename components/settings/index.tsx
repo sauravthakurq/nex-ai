@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import {
   AlertDialog,
@@ -203,6 +203,8 @@ export function SettingsDialog({ open, onOpenChange, initialSection }: SettingsD
   const [themeOpen, setThemeOpen] = useState(false);
   const themeRef = useRef<HTMLDivElement>(null);
   const { isInstallable, showCustomPopup } = usePwa();
+  const allAgents = useAgentRegistry((s) => s.agents);
+  const agents = useMemo(() => Object.values(allAgents).filter((a) => a.isDefault), [allAgents]);
 
   // Get settings from store
   const providerId = useSettingsStore((state) => state.providerId);
@@ -218,11 +220,11 @@ export function SettingsDialog({ open, onOpenChange, initialSection }: SettingsD
   const videoProvidersConfig = useSettingsStore((state) => state.videoProvidersConfig);
   const selectedAgentIds = useSettingsStore((s) => s.selectedAgentIds);
   const setSelectedAgentIds = useSettingsStore((s) => s.setSelectedAgentIds);
-  const maxTurns = useSettingsStore((s) => s.maxTurns) || "5";
+  const maxTurns = useSettingsStore((s) => s.maxTurns) || '5';
   const setMaxTurns = useSettingsStore((s) => s.setMaxTurns || (() => {}));
-  const agentMode = useSettingsStore((s) => s.agentMode) || "preset";
+  const agentMode = useSettingsStore((s) => s.agentMode) || 'preset';
   const setAgentMode = useSettingsStore((s) => s.setAgentMode || (() => {}));
-  
+
   const ttsProviderId = useSettingsStore((state) => state.ttsProviderId);
   const ttsProvidersConfig = useSettingsStore((state) => state.ttsProvidersConfig);
   const asrProviderId = useSettingsStore((state) => state.asrProviderId);
@@ -330,11 +332,13 @@ export function SettingsDialog({ open, onOpenChange, initialSection }: SettingsD
   const handleProviderConfigChange = (
     pid: ProviderId,
     apiKey: string,
+    fallbackApiKeys: string[],
     baseUrl: string,
     requiresApiKey: boolean,
   ) => {
     setProviderConfig(pid, {
       apiKey,
+      fallbackApiKeys,
       baseUrl,
       requiresApiKey,
     });
@@ -457,8 +461,9 @@ export function SettingsDialog({ open, onOpenChange, initialSection }: SettingsD
     const updatedConfig = {
       ...providersConfig,
       [newProviderId]: {
-        apiKey: '',
-        baseUrl: '',
+        apiKey: providerData.apiKey || '',
+        fallbackApiKeys: providerData.fallbackApiKeys || [],
+        baseUrl: providerData.baseUrl || '',
         models: [],
         name: providerData.name,
         type: providerData.type,
@@ -701,6 +706,7 @@ export function SettingsDialog({ open, onOpenChange, initialSection }: SettingsD
   };
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className="h-[100dvh] w-screen max-w-none rounded-none border-none sm:rounded-xl sm:border sm:max-w-none sm:w-[85vw] lg:max-w-5xl sm:h-[85vh] p-0 gap-0 block"
@@ -1020,13 +1026,15 @@ export function SettingsDialog({ open, onOpenChange, initialSection }: SettingsD
                   provider={selectedProvider}
                   initialApiKey={providersConfig[selectedProviderId]?.apiKey || ''}
                   initialBaseUrl={providersConfig[selectedProviderId]?.baseUrl || ''}
+                  initialFallbackApiKeys={providersConfig[selectedProviderId]?.fallbackApiKeys || []}
                   initialRequiresApiKey={
                     providersConfig[selectedProviderId]?.requiresApiKey ?? true
                   }
                   providersConfig={providersConfig}
-                  onConfigChange={(apiKey, baseUrl, requiresApiKey) =>
-                    handleProviderConfigChange(selectedProviderId, apiKey, baseUrl, requiresApiKey)
-                  }
+                  onConfigChange={(apiKey, fallbackApiKeys, baseUrl, requiresApiKey) => {
+                    handleProviderConfigChange(selectedProviderId, apiKey, fallbackApiKeys, baseUrl, requiresApiKey);
+                    handleProviderConfigSave(); // Save instantly on config change
+                  }}
                   onSave={handleProviderConfigSave}
                   onEditModel={(index) => handleEditModel(selectedProviderId, index)}
                   onDeleteModel={(index) => handleDeleteModel(selectedProviderId, index)}
@@ -1052,20 +1060,22 @@ export function SettingsDialog({ open, onOpenChange, initialSection }: SettingsD
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h2 className="text-lg font-medium">{t('settings.agentsSettings') || 'Characters'}</h2>
+                      <h2 className="text-lg font-medium">
+                        {t('settings.agentsSettings') || 'Characters'}
+                      </h2>
                       <p className="text-sm text-muted-foreground">
                         {t('settings.agentsSettingsDesc') || 'Configure AI characters and voices'}
                       </p>
                     </div>
                   </div>
                   <AgentSettings
-                    agents={useAgentRegistry((s) => Object.values(s.agents).filter(a => a.isDefault))} 
+                    agents={agents}
                     selectedAgentIds={selectedAgentIds}
                     maxTurns={maxTurns}
                     agentMode={agentMode}
                     onToggleAgent={(id) => {
                       if (selectedAgentIds.includes(id)) {
-                        setSelectedAgentIds(selectedAgentIds.filter(x => x !== id));
+                        setSelectedAgentIds(selectedAgentIds.filter((x) => x !== id));
                       } else {
                         setSelectedAgentIds([...selectedAgentIds, id]);
                       }
@@ -1178,6 +1188,7 @@ export function SettingsDialog({ open, onOpenChange, initialSection }: SettingsD
           </div>
         </div>
       </DialogContent>
+    </Dialog>
 
       {/* Edit Model Dialog */}
       <ModelEditDialog
@@ -1220,6 +1231,6 @@ export function SettingsDialog({ open, onOpenChange, initialSection }: SettingsD
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </Dialog>
+    </>
   );
 }

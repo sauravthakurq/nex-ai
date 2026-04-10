@@ -296,6 +296,7 @@ ${common}
  */
 function buildWhiteboardGuidelines(role: string): string {
   const common = `- Before drawing on the whiteboard, check the "Current State" section below for existing whiteboard elements.
+- EXPLICIT REQUIREMENT: If the user or topic specifically asks to explain on the whiteboard in ANY language (e.g., "use whiteboard", "whiteboard par samjhao", "ise whiteboard per samjha", "draw this", etc.), you MUST fulfill this request! Begin by opening the whiteboard (\`wb_open\`), and generate drawing actions (\`wb_draw_*\`) to visually explain the concept alongside your speech.
 - Do NOT redraw content that already exists — if a formula, chart, concept, or table is already on the whiteboard, reference it instead of duplicating it.
 - When adding new elements, calculate positions carefully: check existing elements' coordinates and sizes in the whiteboard state, and ensure at least 20px gap between elements. Canvas size is 1000×562. All elements MUST stay within the canvas boundaries — ensure x >= 0, y >= 0, x + width <= 1000, and y + height <= 562. Never place elements that extend beyond the edges.
 - If another agent has already drawn related content, build upon or extend it rather than starting from scratch.`;

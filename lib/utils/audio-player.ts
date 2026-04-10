@@ -15,11 +15,15 @@ const log = createLogger('AudioPlayer');
  * Audio player implementation
  */
 export class AudioPlayer {
-  private audio: HTMLAudioElement | null = null;
+  private audio: HTMLAudioElement | null;
   private onEndedCallback: (() => void) | null = null;
   private muted: boolean = false;
   private volume: number = 1;
   private playbackRate: number = 1;
+
+  constructor() {
+    this.audio = typeof window !== 'undefined' ? new Audio() : null;
+  }
 
   /**
    * Play audio (from URL or IndexedDB pre-generated cache)
@@ -29,18 +33,25 @@ export class AudioPlayer {
    */
   public async play(audioId: string, audioUrl?: string): Promise<boolean> {
     try {
+      if (!this.audio) return false;
+
+      // Stop current playback
+      this.pause();
+      this.audio.currentTime = 0;
+
+      // Clear previous callbacks
+      this.audio.onended = null;
+      this.audio.onerror = null;
+
       // 1. Try audioUrl first (server-generated TTS)
       if (audioUrl) {
-        this.stop();
-        this.audio = new Audio();
         this.audio.src = audioUrl;
-        if (this.muted) this.audio.volume = 0;
-        else this.audio.volume = this.volume;
+        this.audio.volume = this.muted ? 0 : this.volume;
         this.audio.defaultPlaybackRate = this.playbackRate;
         this.audio.playbackRate = this.playbackRate;
-        this.audio.addEventListener('ended', () => {
+        this.audio.onended = () => {
           this.onEndedCallback?.();
-        });
+        };
         await this.audio.play();
         this.audio.playbackRate = this.playbackRate;
         return true;
@@ -50,35 +61,26 @@ export class AudioPlayer {
       const audioRecord = await db.audioFiles.get(audioId);
 
       if (!audioRecord) {
-        // Pre-generated audio does not exist (generation failed), skip silently
         return false;
       }
-
-      // Stop current playback
-      this.stop();
-
-      // Create audio element
-      this.audio = new Audio();
 
       // Set audio source
       const blobUrl = URL.createObjectURL(audioRecord.blob);
       this.audio.src = blobUrl;
-      if (this.muted) this.audio.volume = 0;
-      else this.audio.volume = this.volume;
+      this.audio.volume = this.muted ? 0 : this.volume;
 
       // Apply playback rate
       this.audio.defaultPlaybackRate = this.playbackRate;
       this.audio.playbackRate = this.playbackRate;
 
       // Set ended callback
-      this.audio.addEventListener('ended', () => {
+      this.audio.onended = () => {
         URL.revokeObjectURL(blobUrl);
         this.onEndedCallback?.();
-      });
+      };
 
       // Play
       await this.audio.play();
-      // Re-apply after play() — some browsers reset during load
       this.audio.playbackRate = this.playbackRate;
       return true;
     } catch (error) {
@@ -103,18 +105,15 @@ export class AudioPlayer {
     if (this.audio) {
       this.audio.pause();
       this.audio.currentTime = 0;
-      this.audio = null;
+      this.audio.src = '';
     }
-    // Note: onEndedCallback intentionally NOT cleared here because play()
-    // calls stop() internally — clearing would break the callback chain.
-    // Stale callbacks are harmless: engine mode check prevents processNext().
   }
 
   /**
    * Resume playback
    */
   public resume(): void {
-    if (this.audio?.paused) {
+    if (this.audio && this.audio.paused && this.audio.src) {
       this.audio.playbackRate = this.playbackRate;
       this.audio.play().catch((error) => {
         log.error('Failed to resume audio:', error);
@@ -126,15 +125,14 @@ export class AudioPlayer {
    * Get current playback status (actively playing, not paused)
    */
   public isPlaying(): boolean {
-    return this.audio !== null && !this.audio.paused;
+    return this.audio !== null && !this.audio.paused && this.audio.src !== '';
   }
 
   /**
    * Whether there is active audio (playing or paused, but not ended)
-   * Used to decide whether to resume playback or skip to the next line
    */
   public hasActiveAudio(): boolean {
-    return this.audio !== null;
+    return this.audio !== null && this.audio.src !== '';
   }
 
   /**

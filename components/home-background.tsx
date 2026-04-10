@@ -40,8 +40,8 @@ export function HomeBackground() {
       <div className="fixed inset-0 w-[100vw] h-[100vh] -z-10 pointer-events-none overflow-hidden bg-[#030916] hardware-accelerated">
         {/* Removed expensive SVG turbulence. Keeps background clean and performant. */}
         <div
-          className="absolute inset-0 z-20 pointer-events-none mix-blend-overlay opacity-[0.03] bg-[url('/noise.png')] bg-repeat"
-          style={{ backgroundSize: '128px 128px' }}
+          className="absolute inset-0 z-20 pointer-events-none mix-blend-overlay opacity-[0.03] bg-repeat"
+          style={{ backgroundSize: '128px 128px', backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E")' }}
         ></div>
 
         {/* Removed expensive CSS filter: blur(120px) which completely crashes scroll. The radial-gradient is natively soft */}

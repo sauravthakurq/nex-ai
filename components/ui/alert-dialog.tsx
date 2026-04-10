@@ -7,6 +7,29 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
 function AlertDialog({ ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Root>) {
+  const { open, onOpenChange } = props;
+
+  React.useEffect(() => {
+    if (!open) return;
+
+    let isPopping = false;
+    const handlePopState = (e: PopStateEvent) => {
+      isPopping = true;
+      e.preventDefault();
+      onOpenChange?.(false);
+    };
+
+    window.history.pushState({ alertDialogOpen: true }, '');
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      if (!isPopping && window.history.state?.alertDialogOpen) {
+        window.history.back();
+      }
+    };
+  }, [open, onOpenChange]);
+
   return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />;
 }
 

@@ -436,7 +436,7 @@ function ModelSelectorPopover({
               )}
             >
               {currentProviderConfig?.icon ? (
-                <img 
+                <img
                   src={currentProviderConfig.icon}
                   alt={currentProviderConfig.name}
                   className="size-4 rounded-sm shrink-0"
@@ -465,8 +465,7 @@ function ModelSelectorPopover({
         className="w-[calc(100vw-2rem)] sm:w-64 p-0 max-h-[80vh] overflow-y-auto overflow-x-hidden"
       >
         {/* Level 1: Provider list */}
-        {!drillProvider && (
-          <div className="max-h-72 overflow-y-auto">
+        <div className={cn("max-h-72 overflow-y-auto", drillProvider ? "hidden" : "block")}>
             <div className="px-3 py-2 border-b">
               <span className="text-xs font-semibold text-muted-foreground">
                 {t('toolbar.selectProvider')}
@@ -509,33 +508,31 @@ function ModelSelectorPopover({
               );
             })}
           </div>
-        )}
 
         {/* Level 2: Model list for selected provider */}
-        {drillProvider && activeProvider && (
-          <div className="max-h-72 overflow-y-auto">
+        <div className={cn("max-h-72 overflow-y-auto", (!drillProvider || !activeProvider) ? "hidden" : "block")}>
             {/* Back header */}
             <button
               onClick={() => setDrillProvider(null)}
               className="w-full flex items-center gap-2 px-3 py-2 border-b bg-muted/40 hover:bg-muted/60 transition-colors"
             >
               <ChevronLeft className="size-3.5 text-muted-foreground" />
-              {activeProvider.icon ? (
+              {activeProvider?.icon ? (
                 <img
-                  src={activeProvider.icon}
-                  alt={activeProvider.name}
+                  src={activeProvider?.icon}
+                  alt={activeProvider?.name}
                   className="size-4 rounded-sm"
                 />
               ) : (
                 <Bot className="size-4 text-muted-foreground" />
               )}
-              <span className="text-xs font-semibold">{activeProvider.name}</span>
+              <span className="text-xs font-semibold">{activeProvider?.name}</span>
               <span className="text-[10px] text-muted-foreground ml-auto">
-                {activeProvider.models.length} {t('settings.modelCount')}
+                {(activeProvider?.models || []).length} {t('settings.modelCount')}
               </span>
             </button>
             {/* Models */}
-            {activeProvider.models.map((model) => {
+            {(activeProvider?.models || []).map((model) => {
               const isSelected = currentProviderId === drillProvider && currentModelId === model.id;
               return (
                 <button
@@ -559,7 +556,6 @@ function ModelSelectorPopover({
               );
             })}
           </div>
-        )}
       </PopoverContent>
     </Popover>
   );

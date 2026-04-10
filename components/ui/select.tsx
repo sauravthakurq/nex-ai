@@ -7,6 +7,29 @@ import { cn } from '@/lib/utils';
 import { ChevronDownIcon, CheckIcon, ChevronUpIcon } from 'lucide-react';
 
 function Select({ ...props }: React.ComponentProps<typeof SelectPrimitive.Root>) {
+  const { open, onOpenChange } = props;
+
+  React.useEffect(() => {
+    if (!open) return;
+
+    let isPopping = false;
+    const handlePopState = (e: PopStateEvent) => {
+      isPopping = true;
+      e.preventDefault();
+      onOpenChange?.(false);
+    };
+
+    window.history.pushState({ selectOpen: true }, '');
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      if (!isPopping && window.history.state?.selectOpen) {
+        window.history.back();
+      }
+    };
+  }, [open, onOpenChange]);
+
   return <SelectPrimitive.Root data-slot="select" {...props} />;
 }
 

@@ -4,6 +4,9 @@ const nextConfig: NextConfig = {
   output: process.env.VERCEL ? undefined : 'standalone',
   transpilePackages: ['mathml2omml', 'pptxgenjs'],
   serverExternalPackages: [],
+  turbopack: {
+    root: process.cwd(),
+  },
   experimental: {
     proxyClientMaxBodySize: '200mb',
   },

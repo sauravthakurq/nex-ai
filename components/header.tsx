@@ -96,10 +96,10 @@ export function Header({ currentSceneTitle }: HeaderProps) {
           <div className="relative">
             <button
               onClick={() => setLoginOpen(true)}
-              className="px-4 py-1.5 rounded-full text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-sm flex items-center justify-center min-w-[80px]"
+              className="p-1 sm:px-4 sm:py-1.5 rounded-full text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-sm flex items-center justify-center sm:min-w-[80px]"
             >
               {user ? (
-                <span className="truncate max-w-[100px]">{user.email?.split('@')[0]}</span>
+                <img src="/apple-icon.png" alt="User" className="w-6 h-6 object-contain" />
               ) : (
                 'Login'
               )}

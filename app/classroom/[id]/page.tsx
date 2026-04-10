@@ -43,10 +43,11 @@ export default function ClassroomDetailPage() {
             'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1000&auto=format&fit=crop';
           if (firstSlide?.elements) {
             const imgElement = firstSlide.elements.find(
-              (el: any) => el.type === 'image' && el.src && !el.src.startsWith('blob:'),
+              (el: { type?: string; src?: string }) =>
+                el.type === 'image' && el.src && !el.src.startsWith('blob:'),
             );
             if (imgElement) {
-              thumbnail = (imgElement as any).src;
+              thumbnail = imgElement.src!;
             }
           }
 

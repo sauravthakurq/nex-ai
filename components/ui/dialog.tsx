@@ -8,6 +8,29 @@ import { Button } from '@/components/ui/button';
 import { XIcon } from 'lucide-react';
 
 function Dialog({ ...props }: React.ComponentProps<typeof DialogPrimitive.Root>) {
+  const { open, onOpenChange } = props;
+
+  React.useEffect(() => {
+    if (!open) return;
+
+    let isPopping = false;
+    const handlePopState = (e: PopStateEvent) => {
+      isPopping = true;
+      e.preventDefault();
+      onOpenChange?.(false);
+    };
+
+    window.history.pushState({ dialogOpen: true }, '');
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      if (!isPopping && window.history.state?.dialogOpen) {
+        window.history.back();
+      }
+    };
+  }, [open, onOpenChange]);
+
   return <DialogPrimitive.Root data-slot="dialog" {...props} />;
 }
 

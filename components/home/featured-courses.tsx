@@ -91,13 +91,12 @@ export function FeaturedCourses() {
     );
   }
 
-  const topTwo = HARDCODED_FEATURED.filter(c => c.isLarge);
-  const remainingHardcoded = HARDCODED_FEATURED.filter(c => !c.isLarge);
+  const topTwo = HARDCODED_FEATURED.filter((c) => c.isLarge);
+  const remainingHardcoded = HARDCODED_FEATURED.filter((c) => !c.isLarge);
 
   return (
     <div className="w-full flex justify-center text-white pb-20 pt-4">
       <div className="w-[1200px] max-w-full space-y-8 flex flex-col justify-center mx-auto px-4 md:px-0">
-        
         {/* Top 2 Big Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 w-full">
           {topTwo.map((course) => (
@@ -106,7 +105,10 @@ export function FeaturedCourses() {
               className="group cursor-pointer"
               onClick={() => {
                 if (course.id === 'openclaw') {
-                  window.open('https://drive.google.com/file/d/1NT9OXx0_U80-JsRTUlgR4lmhhPd_zrOI/view?usp=share_link', '_blank');
+                  window.open(
+                    'https://drive.google.com/file/d/1NT9OXx0_U80-JsRTUlgR4lmhhPd_zrOI/view?usp=share_link',
+                    '_blank',
+                  );
                 } else {
                   router.push(`/classroom/${course.id}`);
                 }
@@ -122,7 +124,9 @@ export function FeaturedCourses() {
                 </div>
                 <div className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end p-5 md:p-6 text-left">
-                  <span className={`inline-flex w-fit items-center rounded-full backdrop-blur-sm px-2.5 py-0.5 text-[11px] font-medium mb-2 ${course.badgeColors}`}>
+                  <span
+                    className={`inline-flex w-fit items-center rounded-full backdrop-blur-sm px-2.5 py-0.5 text-[11px] font-medium mb-2 ${course.badgeColors}`}
+                  >
                     {course.badge}
                   </span>
                   <h3 className="text-lg md:text-xl font-bold leading-tight text-white mb-0 drop-shadow-md">
@@ -166,7 +170,9 @@ export function FeaturedCourses() {
                 </div>
                 <div className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end p-3 text-left">
-                  <span className={`inline-flex w-fit items-center rounded-full backdrop-blur-sm px-1.5 py-0.5 text-[10px] font-medium mb-1.5 ${course.badgeColors}`}>
+                  <span
+                    className={`inline-flex w-fit items-center rounded-full backdrop-blur-sm px-1.5 py-0.5 text-[10px] font-medium mb-1.5 ${course.badgeColors}`}
+                  >
                     {course.badge}
                   </span>
                   <h3 className="text-sm font-bold leading-tight text-white line-clamp-2">

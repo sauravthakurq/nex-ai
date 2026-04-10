@@ -40,10 +40,11 @@ import { cn } from '@/lib/utils';
 interface ProviderConfigPanelProps {
   provider: ProviderConfig;
   initialApiKey: string;
+  initialFallbackApiKeys?: string[];
   initialBaseUrl: string;
   initialRequiresApiKey: boolean;
   providersConfig: ProvidersConfig;
-  onConfigChange: (apiKey: string, baseUrl: string, requiresApiKey: boolean) => void;
+  onConfigChange: (apiKey: string, fallbackApiKeys: string[], baseUrl: string, requiresApiKey: boolean) => void;
   onSave: () => void; // Auto-save on blur
   onEditModel: (index: number) => void;
   onDeleteModel: (index: number) => void;
@@ -55,6 +56,7 @@ interface ProviderConfigPanelProps {
 export function ProviderConfigPanel({
   provider,
   initialApiKey,
+  initialFallbackApiKeys = [],
   initialBaseUrl,
   initialRequiresApiKey,
   providersConfig,
@@ -70,9 +72,11 @@ export function ProviderConfigPanel({
 
   // Local state for this provider
   const [apiKey, setApiKey] = useState(initialApiKey);
+  const [fallbackApiKeys, setFallbackApiKeys] = useState<string[]>(initialFallbackApiKeys);
   const [baseUrl, setBaseUrl] = useState(initialBaseUrl);
   const [requiresApiKey, setRequiresApiKey] = useState(initialRequiresApiKey);
   const [showApiKey, setShowApiKey] = useState(false);
+  const [showFallbackApiKey, setShowFallbackApiKey] = useState<boolean[]>([]);
   const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle');
   const [testMessage, setTestMessage] = useState('');
   const [showResetDialog, setShowResetDialog] = useState(false);
@@ -81,6 +85,8 @@ export function ProviderConfigPanel({
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- Sync local state from props on provider change
     setApiKey(initialApiKey);
+    
+    setFallbackApiKeys(initialFallbackApiKeys);
 
     setBaseUrl(initialBaseUrl);
 
@@ -89,22 +95,45 @@ export function ProviderConfigPanel({
     setTestStatus('idle');
 
     setTestMessage('');
-  }, [provider.id, initialApiKey, initialBaseUrl, initialRequiresApiKey]);
+  }, [provider.id, initialApiKey, initialFallbackApiKeys, initialBaseUrl, initialRequiresApiKey]);
 
   // Notify parent of changes
   const handleApiKeyChange = (key: string) => {
     setApiKey(key);
-    onConfigChange(key, baseUrl, requiresApiKey);
+    onConfigChange(key, fallbackApiKeys, baseUrl, requiresApiKey);
+  };
+
+  const handleFallbackApiKeyChange = (index: number, key: string) => {
+    const updated = [...fallbackApiKeys];
+    updated[index] = key;
+    setFallbackApiKeys(updated);
+    onConfigChange(apiKey, updated, baseUrl, requiresApiKey);
+  };
+
+  const addFallbackApiKey = () => {
+    if (fallbackApiKeys.length < 7) {
+      const updated = [...fallbackApiKeys, ''];
+      setFallbackApiKeys(updated);
+      setShowFallbackApiKey((prev) => [...prev, false]);
+      onConfigChange(apiKey, updated, baseUrl, requiresApiKey);
+    }
+  };
+
+  const removeFallbackApiKey = (index: number) => {
+    const updated = fallbackApiKeys.filter((_, i) => i !== index);
+    setFallbackApiKeys(updated);
+    setShowFallbackApiKey((prev) => prev.filter((_, i) => i !== index));
+    onConfigChange(apiKey, updated, baseUrl, requiresApiKey);
   };
 
   const handleBaseUrlChange = (url: string) => {
     setBaseUrl(url);
-    onConfigChange(apiKey, url, requiresApiKey);
+    onConfigChange(apiKey, fallbackApiKeys, url, requiresApiKey);
   };
 
   const handleRequiresApiKeyChange = (requires: boolean) => {
     setRequiresApiKey(requires);
-    onConfigChange(apiKey, baseUrl, requires);
+    onConfigChange(apiKey, fallbackApiKeys, baseUrl, requires);
   };
 
   const handleTestApi = useCallback(async () => {
@@ -192,6 +221,16 @@ export function ProviderConfigPanel({
           <Button
             variant="outline"
             size="sm"
+            onClick={addFallbackApiKey}
+            title="Add Fallback API Key (Limit 7)"
+            disabled={fallbackApiKeys.length >= 7 || (!requiresApiKey && !isServerConfigured)}
+            className="gap-0 w-8 px-0"
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
             onClick={handleTestApi}
             disabled={
               testStatus === 'testing' || (requiresApiKey && !apiKey && !isServerConfigured)
@@ -208,6 +247,49 @@ export function ProviderConfigPanel({
             )}
           </Button>
         </div>
+
+        {fallbackApiKeys.map((fbKey, index) => (
+          <div key={`fallback-${provider.id}-${index}`} className="flex gap-2 items-center mt-2 pl-4 border-l-2 border-border/50">
+            <div className="relative flex-1">
+              <Input
+                name={`llm-fallback-api-key-${provider.id}-${index}`}
+                type={showFallbackApiKey[index] ? 'text' : 'password'}
+                autoComplete="new-password"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                placeholder="sk-... (Fallback)"
+                value={fbKey}
+                onChange={(e) => handleFallbackApiKeyChange(index, e.target.value)}
+                onBlur={onSave}
+                disabled={!requiresApiKey && !isServerConfigured}
+                className="h-8 pr-8"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  const updated = [...showFallbackApiKey];
+                  updated[index] = !updated[index];
+                  setShowFallbackApiKey(updated);
+                }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                disabled={!requiresApiKey}
+              >
+                {showFallbackApiKey[index] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => removeFallbackApiKey(index)}
+              className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/50 gap-0 w-8 px-0"
+              title="Remove fallback API key"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        ))}
+
         {testMessage && (
           <div
             className={cn(

@@ -19,6 +19,7 @@ export type SettingsSection =
 export interface ProviderSettings {
   // Configuration
   apiKey: string;
+  fallbackApiKeys?: string[];
   baseUrl: string;
   models: ModelInfo[]; // All models (user can edit/delete any)
 

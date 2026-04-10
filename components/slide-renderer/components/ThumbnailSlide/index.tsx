@@ -34,12 +34,8 @@ export function ThumbnailSlide({
 
   if (!visible) {
     return (
-      <div
-        className="thumbnail-slide bg-white overflow-hidden select-none w-full h-full flex items-center justify-center relative"
-      >
-        <div className="placeholder text-gray-400 text-sm">
-          Loading... ...
-        </div>
+      <div className="thumbnail-slide bg-white overflow-hidden select-none w-full h-full flex items-center justify-center relative">
+        <div className="placeholder text-gray-400 text-sm">Loading... ...</div>
       </div>
     );
   }
@@ -50,7 +46,7 @@ export function ThumbnailSlide({
       className="thumbnail-slide bg-white overflow-hidden select-none relative"
       style={{
         width: `${size}px`,
-        height: `${size * viewportRatio}px`
+        height: `${size * viewportRatio}px`,
       }}
     >
       <div
@@ -58,7 +54,7 @@ export function ThumbnailSlide({
         style={{
           width: `${viewportSize}px`,
           height: `${viewportSize * viewportRatio}px`,
-          transform: `scale(${size / viewportSize})`
+          transform: `scale(${size / viewportSize})`,
         }}
       >
         {/* Background */}

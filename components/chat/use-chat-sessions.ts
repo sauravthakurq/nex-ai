@@ -480,7 +480,7 @@ export function useChatSessions(options: UseChatSessionsOptions = {}) {
       let turnCount = 0;
       let currentMessages = requestTemplate.messages;
       let consecutiveEmptyTurns = 0;
-      let maxOverrideTurns = maxTurns < 5 ? 5 : maxTurns;
+      const maxOverrideTurns = maxTurns < 5 ? 5 : maxTurns;
 
       while (turnCount < maxOverrideTurns) {
         if (controller.signal.aborted) break;
@@ -877,6 +877,7 @@ export function useChatSessions(options: UseChatSessionsOptions = {}) {
             model: mc.modelString,
             providerType: mc.providerType,
             requiresApiKey: mc.requiresApiKey,
+            fallbackApiKeys: mc.fallbackApiKeys,
           },
           controller,
           session.type,
@@ -1089,6 +1090,7 @@ export function useChatSessions(options: UseChatSessionsOptions = {}) {
             model: mc.modelString,
             providerType: mc.providerType,
             requiresApiKey: mc.requiresApiKey,
+            fallbackApiKeys: mc.fallbackApiKeys,
           },
           controller,
           sessionType,
@@ -1232,6 +1234,7 @@ export function useChatSessions(options: UseChatSessionsOptions = {}) {
             model: mc.modelString,
             providerType: mc.providerType,
             requiresApiKey: mc.requiresApiKey,
+            fallbackApiKeys: mc.fallbackApiKeys,
           },
           controller,
           'discussion',

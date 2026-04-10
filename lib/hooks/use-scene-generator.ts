@@ -40,6 +40,7 @@ function getApiHeaders(): HeadersInit {
     'Content-Type': 'application/json',
     'x-model': config.modelString || '',
     'x-api-key': config.apiKey || '',
+    'x-fallback-api-keys': config.fallbackApiKeys ? JSON.stringify(config.fallbackApiKeys) : '[]',
     'x-base-url': config.baseUrl || '',
     'x-provider-type': config.providerType || '',
     'x-requires-api-key': String(config.requiresApiKey ?? false),

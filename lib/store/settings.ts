@@ -30,6 +30,7 @@ export interface SettingsState {
   // Model selection
   providerId: ProviderId;
   modelId: string;
+  fallbackModels: Array<{ providerId: ProviderId; modelId: string }>;
 
   // Provider configurations (unified JSON storage)
   providersConfig: ProvidersConfig;
@@ -89,6 +90,7 @@ export interface SettingsState {
   // Image Generation settings
   imageProviderId: ImageProviderId;
   imageModelId: string;
+  fallbackImageModels: Array<{ providerId: ImageProviderId; modelId: string }>;
   imageProvidersConfig: Record<
     ImageProviderId,
     {
@@ -104,6 +106,7 @@ export interface SettingsState {
   // Video Generation settings
   videoProviderId: VideoProviderId;
   videoModelId: string;
+  fallbackVideoModels: Array<{ providerId: VideoProviderId; modelId: string }>;
   videoProvidersConfig: Record<
     VideoProviderId,
     {
@@ -159,6 +162,7 @@ export interface SettingsState {
 
   // Actions
   setModel: (providerId: ProviderId, modelId: string) => void;
+  setFallbackModels: (models: Array<{ providerId: ProviderId; modelId: string }>) => void;
   setProviderConfig: (providerId: ProviderId, config: Partial<ProvidersConfig[ProviderId]>) => void;
   setProvidersConfig: (config: ProvidersConfig) => void;
   setTtsModel: (model: string) => void;
@@ -217,6 +221,7 @@ export interface SettingsState {
   // Image Generation actions
   setImageProvider: (providerId: ImageProviderId) => void;
   setImageModelId: (modelId: string) => void;
+  setFallbackImageModels: (models: Array<{ providerId: ImageProviderId; modelId: string }>) => void;
   setImageProviderConfig: (
     providerId: ImageProviderId,
     config: Partial<{
@@ -230,6 +235,7 @@ export interface SettingsState {
   // Video Generation actions
   setVideoProvider: (providerId: VideoProviderId) => void;
   setVideoModelId: (modelId: string) => void;
+  setFallbackVideoModels: (models: Array<{ providerId: VideoProviderId; modelId: string }>) => void;
   setVideoProviderConfig: (
     providerId: VideoProviderId,
     config: Partial<{
@@ -262,7 +268,7 @@ const getDefaultProvidersConfig = (): ProvidersConfig => {
     const provider = PROVIDERS[pid as ProviderId];
     config[pid as ProviderId] = {
       apiKey: '',
-      baseUrl: '',
+      baseUrl: provider.defaultBaseUrl || '',
       models: provider.models,
       name: provider.name,
       type: provider.type,
@@ -281,7 +287,7 @@ const getDefaultAudioConfig = () => ({
   ttsVoice: 'default',
   ttsSpeed: 1.0,
   asrProviderId: 'browser-native' as ASRProviderId,
-  asrLanguage: 'zh',
+  asrLanguage: 'en-IN',
   ttsProvidersConfig: {
     'openai-tts': { apiKey: '', baseUrl: '', enabled: true },
     'azure-tts': { apiKey: '', baseUrl: '', enabled: false },
@@ -541,6 +547,7 @@ export const useSettingsStore = create<SettingsState>()(
         // Initial state (use migrated data if available)
         providerId: migratedData?.providerId || 'openai',
         modelId: migratedData?.modelId || '',
+        fallbackModels: [],
         providersConfig: migratedData?.providersConfig || getDefaultProvidersConfig(),
         ttsModel: migratedData?.ttsModel || 'openai-tts',
         selectedAgentIds: migratedData?.selectedAgentIds || ['default-1', 'default-2', 'default-3'],
@@ -566,9 +573,11 @@ export const useSettingsStore = create<SettingsState>()(
         ...defaultPDFConfig,
 
         // Image settings (use defaults)
+        fallbackImageModels: [],
         ...defaultImageConfig,
 
         // Video settings (use defaults)
+        fallbackVideoModels: [],
         ...defaultVideoConfig,
 
         // Media generation toggles (off by default)
@@ -586,19 +595,70 @@ export const useSettingsStore = create<SettingsState>()(
 
         // Actions
         setModel: (providerId, modelId) => set({ providerId, modelId }),
+        setFallbackModels: (models) => set({ fallbackModels: models }),
 
         setProviderConfig: (providerId, config) =>
-          set((state) => ({
-            providersConfig: {
-              ...state.providersConfig,
-              [providerId]: {
-                ...state.providersConfig[providerId],
-                ...config,
-              },
-            },
-          })),
+          set((state) => {
+            const updatedProvider = { ...state.providersConfig[providerId], ...config };
+            const newProvidersConfig = { ...state.providersConfig, [providerId]: updatedProvider };
 
-        setProvidersConfig: (config) => set({ providersConfig: config }),
+            let newProviderId = state.providerId;
+            let newModelId = state.modelId;
+
+            // Check if current selection is usable
+            const currentProvider = newProvidersConfig[state.providerId];
+            const isCurrentUsable = currentProvider && 
+              (!currentProvider.requiresApiKey || currentProvider.apiKey || currentProvider.isServerConfigured) && 
+              currentProvider.models?.some(m => m.id === state.modelId);
+
+            if (!isCurrentUsable) {
+              const p = updatedProvider;
+              if ((!p.requiresApiKey || p.apiKey || p.isServerConfigured) && p.models?.length > 0) {
+                newProviderId = providerId;
+                newModelId = p.models[0].id;
+              } else {
+                for (const [pid, pConf] of Object.entries(newProvidersConfig)) {
+                  if ((!pConf.requiresApiKey || pConf.apiKey || pConf.isServerConfigured) && pConf.models?.length > 0) {
+                     newProviderId = pid as ProviderId;
+                     newModelId = pConf.models[0].id;
+                     break;
+                  }
+                }
+              }
+            }
+
+            return {
+              providersConfig: newProvidersConfig,
+              providerId: newProviderId,
+              modelId: newModelId,
+            };
+          }),
+
+        setProvidersConfig: (config) => set((state) => {
+            let newProviderId = state.providerId;
+            let newModelId = state.modelId;
+
+            const currentProvider = config[state.providerId];
+            const isCurrentUsable = currentProvider && 
+              (!currentProvider.requiresApiKey || currentProvider.apiKey || currentProvider.isServerConfigured) && 
+              currentProvider.models?.some(m => m.id === state.modelId);
+
+            if (!isCurrentUsable) {
+              for (const [pid, pConf] of Object.entries(config)) {
+                if ((!pConf.requiresApiKey || pConf.apiKey || pConf.isServerConfigured) && pConf.models?.length > 0) {
+                   newProviderId = pid as ProviderId;
+                   newModelId = pConf.models[0].id;
+                   break;
+                }
+              }
+            }
+
+            return {
+              providersConfig: config,
+              providerId: newProviderId,
+              modelId: newModelId,
+            };
+          }),
 
         setTtsModel: (model) => set({ ttsModel: model }),
 
@@ -689,6 +749,7 @@ export const useSettingsStore = create<SettingsState>()(
         // Image Generation actions
         setImageProvider: (providerId) => set({ imageProviderId: providerId }),
         setImageModelId: (modelId) => set({ imageModelId: modelId }),
+        setFallbackImageModels: (models) => set({ fallbackImageModels: models }),
 
         setImageProviderConfig: (providerId, config) =>
           set((state) => ({
@@ -704,6 +765,7 @@ export const useSettingsStore = create<SettingsState>()(
         // Video Generation actions
         setVideoProvider: (providerId) => set({ videoProviderId: providerId }),
         setVideoModelId: (modelId) => set({ videoModelId: modelId }),
+        setFallbackVideoModels: (models) => set({ fallbackVideoModels: models }),
 
         setVideoProviderConfig: (providerId, config) =>
           set((state) => ({
